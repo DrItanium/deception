@@ -28,6 +28,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cstdint>
 #include <array>
 #include <optional>
+#include <stack>
+#include <memory>
 // each action table is different so there is no header
 
 struct Entry {
@@ -45,8 +47,46 @@ struct Entry {
 
 // Each table is made up of 256 entries, if they are not valid
 using Table = std::array<std::function<void()>, 256>;
-Table basicTable;
-Table* currentTable = &basicTable;
+using ActionTable = std::shared_ptr<Table>;
+using Conclave = std::vector<ActionTable>;
+Conclave tables;
+std::stack<ActionTable> tableStack;
+ActionTable currentTable = nullptr;
+ActionTable getCurrentTable() {
+    return currentTable;
+}
+int nestingDepth = 0;
+void
+resetTable() {
+    while (!tableStack.empty()) {
+        tableStack.pop();
+    }
+    currentTable = tables[0]; // go back to the initial table 
+    nestingDepth = 0;
+}
+void 
+restoreTable() {
+    if (!tableStack.empty()) {
+        currentTable = tableStack.top();
+        tableStack.pop();
+    }
+}
+void 
+use(ActionTable target) {
+    if (currentTable) {
+        tableStack.push(currentTable);
+    }
+    currentTable = target;
+}
+/**
+ * @param construct a new table and point to it!
+ */
+ActionTable
+newTable() {
+    auto newTable = std::make_shared<Table>();
+    tables.emplace_back(newTable);
+    return newTable;
+}
 std::optional<uint8_t>
 nextCharacter(std::istream& inputStream) noexcept {
     uint8_t nextCharacter = inputStream.get();
@@ -58,13 +98,32 @@ nextCharacter(std::istream& inputStream) noexcept {
 }
 void 
 setupInitialInterpreter() {
+    auto basicTable = newTable(); 
+    auto parenLookupTable = newTable();
+    auto singleLineCommentTable = newTable();
+    resetTable();
     // this is an example
-    basicTable['#'] = []() {
-        // read until the end of the current line then return
-        std::string ignore;
-        std::getline(std::cin, ignore);
-        std::cout << "ignored: " << ignore << std::endl;
+    (*basicTable)['#'] = [&singleLineCommentTable]() { use(singleLineCommentTable); };
+    (*basicTable)['('] = [&parenLookupTable]() {
+        // consume characters until you find a matching ')'
+        // but in this case we just need to switch to a different table
+        use(parenLookupTable);
+        nestingDepth = 1;
     };
+
+    (*parenLookupTable)['('] = []() {
+        // okay so just increment the nesting depth and do nothing else
+        ++nestingDepth;
+    };
+    (*parenLookupTable)[')'] = []() {
+        --nestingDepth;
+        if (nestingDepth <= 0) {
+            nestingDepth = 0;
+            restoreTable(); // go back to the previous table
+        }
+    };
+    (*singleLineCommentTable)['\n'] = []() { restoreTable(); };
+
 }
 void 
 runInterpreter() {
@@ -72,9 +131,9 @@ runInterpreter() {
     while (true) {
         if (auto theCharacter = nextCharacter(std::cin); theCharacter) {
             // now do a table lookup
-            auto result = (*currentTable)[*theCharacter];
-            if (result) {
-                result(); // invoke it if it makes sense
+            auto fn = getCurrentTable()->operator[](static_cast<uint8_t>(*theCharacter));
+            if (fn) {
+                fn(); // invoke it if it makes sense
             }
         } else {
             // in this case, we want to perform error handling which only
