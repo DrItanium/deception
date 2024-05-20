@@ -24,11 +24,62 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <iostream>
-
+#include <functional>
+#include <cstdint>
+#include <array>
+#include <optional>
 // each action table is different so there is no header
 
+struct Entry {
+    std::function<void()> _body = nullptr;
+    bool operator() const noexcept {
+        return _body != nullptr;
+    }
+    /// @todo this is customizable but this is the simplest interpreter
+    /// possible
+    void operator()() {
+        if (_body) {
+            _body();
+        }
+    }
+};
 
 
-int main(int argc, char[] argv) {
-    
+// Each table is made up of 256 entries, if they are not valid
+using Table = std::array<std::function<void()>, 256>;
+Table basicTable;
+Table* currentTable = &basicTable;
+void 
+setupInitialInterpreter() {
+    // do nothing right now
+}
+std::optional<uint8_t>
+nextCharacter(std::istream& inputStream) noexcept {
+    uint8_t nextCharacter = inputStream.get();
+    if (inputStream.fail()) {
+        return std::nullopt;
+    } else {
+        return nextCharacter;
+    }
+}
+void 
+runInterpreter() {
+    std::cout << "CTRL-D to quit" << std::endl;
+    while (true) {
+        if (auto theCharacter = nextCharacter(std::cin); theCharacter) {
+            // now do a table lookup
+            (*currentTable)[theCharacter](); // then just invoke it
+        } else {
+            // in this case, we want to perform error handling which only
+            // happens when we run out of characters, we should break since you
+            // pressed ctrl-d
+            break;
+        }
+    }
+}
+
+int main(int argc, char*[] argv) {
+    setupInitialInterpreter();
+    runInterpreter();
+    return 0;
 }
