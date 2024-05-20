@@ -30,23 +30,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <optional>
 #include <stack>
 #include <memory>
+#include <map>
 // each action table is different so there is no header
 
-struct Entry {
-    std::function<void()> _body = nullptr;
-    operator bool() const noexcept {
-        return _body != nullptr;
-    }
-    /// @todo this is customizable but this is the simplest interpreter
-    /// possible
-    void operator()() {
-        _body();
-    }
-};
-
-
 // Each table is made up of 256 entries, if they are not valid
-using Table = std::array<std::function<void()>, 256>;
+using Table = std::map<char, std::function<void()>>;
 using ActionTable = std::shared_ptr<Table>;
 using Conclave = std::vector<ActionTable>;
 Conclave tables;
@@ -101,28 +89,31 @@ setupInitialInterpreter() {
     auto parenLookupTable = newTable();
     auto singleLineCommentTable = newTable();
     resetTable();
+    basicTable->emplace('#', [singleLineCommentTable]() { use(singleLineCommentTable); });
     // this is an example
-    (*basicTable)['#'] = [singleLineCommentTable]() { use(singleLineCommentTable); };
-    (*basicTable)['('] = [parenLookupTable]() {
-        // consume characters until you find a matching ')'
-        // but in this case we just need to switch to a different table
-        use(parenLookupTable);
-        nestingDepth = 1;
-    };
-
-    (*parenLookupTable)['('] = []() {
-        // okay so just increment the nesting depth and do nothing else
-        ++nestingDepth;
-    };
-    (*parenLookupTable)[')'] = []() {
+    basicTable->emplace('(',
+                        [parenLookupTable]() {
+                            // consume characters until you find a matching ')'
+                            // but in this case we just need to switch to a different table
+                            use(parenLookupTable);
+                            nestingDepth = 1;
+                        });
+    singleLineCommentTable->emplace('\n', []() { restoreTable(); });
+    parenLookupTable->emplace('(', []() { ++nestingDepth; });
+    parenLookupTable->emplace(')', []() {
         --nestingDepth;
         if (nestingDepth <= 0) {
             nestingDepth = 0;
             restoreTable(); // go back to the previous table
         }
-    };
-    (*singleLineCommentTable)['\n'] = []() { restoreTable(); };
-
+    });
+    basicTable->emplace('?',
+                        [basicTable]() {
+                            std::cout << "available words" << std::endl;
+                            for (auto a : *basicTable) {
+                                std::cout << a.first << std::endl;
+                            }
+                        });
 }
 void 
 runInterpreter() {
@@ -130,10 +121,8 @@ runInterpreter() {
     while (true) {
         if (auto theCharacter = nextCharacter(std::cin); theCharacter) {
             // now do a table lookup
-            auto currentTable = getCurrentTable();
-            auto fn = (*currentTable)[*theCharacter];
-            if (fn) {
-                fn(); // invoke it if it makes sense
+            if (auto lookup = getCurrentTable()->find(*theCharacter); lookup != getCurrentTable()->end()) {
+                lookup->second();
             }
         } else {
             // in this case, we want to perform error handling which only
