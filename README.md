@@ -48,10 +48,10 @@ codes (another bug bear of mine).
 
 At it's core the language works like this:
 
-# Read a character in (doesn't matter from where) as an 8-bit ascii code
-# Grab the action entry from the current action table corresponding to the ascii code
-# If the pointer to code contains a valid address then invoke it. If there is no operation associated with that entry then just continue (it is not an error state)
-# Repeat
+- Read a character in (doesn't matter from where) as an 8-bit ascii code
+- Grab the action entry from the current action table corresponding to the ascii code
+- If the pointer to code contains a valid address then invoke it. If there is no operation associated with that entry then just continue (it is not an error state)
+- Repeat
 
 The set of actions that are being performed are defined inside of the
 interpreter itself. All you need to boot strap a system is a small loop that
