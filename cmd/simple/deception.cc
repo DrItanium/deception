@@ -83,9 +83,8 @@ use(ActionTable target) {
  */
 ActionTable
 newTable() {
-    auto newTable = std::make_shared<Table>();
-    tables.emplace_back(newTable);
-    return newTable;
+    tables.emplace_back(std::make_shared<Table>());
+    return tables.back();
 }
 std::optional<uint8_t>
 nextCharacter(std::istream& inputStream) noexcept {
@@ -103,8 +102,8 @@ setupInitialInterpreter() {
     auto singleLineCommentTable = newTable();
     resetTable();
     // this is an example
-    (*basicTable)['#'] = [&singleLineCommentTable]() { use(singleLineCommentTable); };
-    (*basicTable)['('] = [&parenLookupTable]() {
+    (*basicTable)['#'] = [singleLineCommentTable]() { use(singleLineCommentTable); };
+    (*basicTable)['('] = [parenLookupTable]() {
         // consume characters until you find a matching ')'
         // but in this case we just need to switch to a different table
         use(parenLookupTable);
@@ -131,7 +130,8 @@ runInterpreter() {
     while (true) {
         if (auto theCharacter = nextCharacter(std::cin); theCharacter) {
             // now do a table lookup
-            auto fn = getCurrentTable()->operator[](static_cast<uint8_t>(*theCharacter));
+            auto currentTable = getCurrentTable();
+            auto fn = (*currentTable)[*theCharacter];
             if (fn) {
                 fn(); // invoke it if it makes sense
             }
