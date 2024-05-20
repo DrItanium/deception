@@ -71,3 +71,6 @@ interaction with the system.
 This repo contains both examples of Deception in action and a skeleton
 interpreter written in C.
 
+The name deception comes from the lyrics of "The Thing That Should Not Be" by Metallica. 
+I was trying to come up with a name for this language and that word just stuck.
+
