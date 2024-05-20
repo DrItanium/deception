@@ -8,7 +8,7 @@ find_package(Boost
 		COMPONENTS program_options)
 
 add_executable(deception
-		cmd/simple_interpreter/deception.cc
+		cmd/simple/deception.cc
 		)
 target_link_libraries(deception
 		Boost::program_options)
