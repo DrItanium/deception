@@ -38,9 +38,7 @@ struct Entry {
     /// @todo this is customizable but this is the simplest interpreter
     /// possible
     void operator()() {
-        if (_body) {
-            _body();
-        }
+        _body();
     }
 };
 
@@ -49,10 +47,6 @@ struct Entry {
 using Table = std::array<std::function<void()>, 256>;
 Table basicTable;
 Table* currentTable = &basicTable;
-void 
-setupInitialInterpreter() {
-    // do nothing right now
-}
 std::optional<uint8_t>
 nextCharacter(std::istream& inputStream) noexcept {
     uint8_t nextCharacter = inputStream.get();
@@ -63,12 +57,25 @@ nextCharacter(std::istream& inputStream) noexcept {
     }
 }
 void 
+setupInitialInterpreter() {
+    // this is an example
+    basicTable['#'] = []() {
+        // read until the end of the current line then return
+        std::string ignore;
+        std::getline(std::cin, ignore);
+        std::cout << "ignored: " << ignore << std::endl;
+    };
+}
+void 
 runInterpreter() {
     std::cout << "CTRL-D to quit" << std::endl;
     while (true) {
         if (auto theCharacter = nextCharacter(std::cin); theCharacter) {
             // now do a table lookup
-            (*currentTable)[*theCharacter](); // then just invoke it
+            auto result = (*currentTable)[*theCharacter];
+            if (result) {
+                result(); // invoke it if it makes sense
+            }
         } else {
             // in this case, we want to perform error handling which only
             // happens when we run out of characters, we should break since you
