@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct Entry {
     std::function<void()> _body = nullptr;
-    bool operator() const noexcept {
+    operator bool() const noexcept {
         return _body != nullptr;
     }
     /// @todo this is customizable but this is the simplest interpreter
@@ -68,7 +68,7 @@ runInterpreter() {
     while (true) {
         if (auto theCharacter = nextCharacter(std::cin); theCharacter) {
             // now do a table lookup
-            (*currentTable)[theCharacter](); // then just invoke it
+            (*currentTable)[*theCharacter](); // then just invoke it
         } else {
             // in this case, we want to perform error handling which only
             // happens when we run out of characters, we should break since you
@@ -78,7 +78,7 @@ runInterpreter() {
     }
 }
 
-int main(int argc, char*[] argv) {
+int main(int argc, char** argv) {
     setupInitialInterpreter();
     runInterpreter();
     return 0;
