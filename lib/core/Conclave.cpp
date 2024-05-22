@@ -30,4 +30,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace Deception {
 
+    Conclave::Conclave(std::initializer_list<Table> list) {
+        for (auto& a : list) {
+           _backingStore.emplace_back(std::make_shared<Table>(a));
+        }
+    }
 } // end namespace Deception

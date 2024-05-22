@@ -37,6 +37,7 @@ namespace Deception {
         using TableReference = Table::SharedPtr;
         using BackingStore = std::vector<TableReference>;
         Conclave() = default;
+        Conclave(std::initializer_list<Table> list);
         Conclave(const Conclave&) = default;
         Conclave(Conclave&&) = default;
         template<typename ... Ts>

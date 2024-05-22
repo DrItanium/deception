@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <map>
 #include <functional>
 #include <memory>
-#include <stack>;
+#include <stack>
 namespace Deception {
     class Table {
     public:
@@ -59,8 +59,6 @@ namespace Deception {
     private:
         DispatchTable _table;
     };
-    using TableReference = Table::SharedPtr;
-    using TableStack = Table::Stack;
 } // end namespace Deception
 
 #endif //DECEPTION_TABLE_H
