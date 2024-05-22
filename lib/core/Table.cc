@@ -34,8 +34,4 @@ namespace Deception {
             }
         }
     }
-    void
-    Table::operator()(char c) noexcept {
-        run(c);
-    }
 }

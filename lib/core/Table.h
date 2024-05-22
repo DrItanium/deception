@@ -27,6 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define DECEPTION_TABLE_H
 #include <map>
 #include <functional>
+#include <memory>
 namespace Deception {
     class Table {
     public:
@@ -35,23 +36,26 @@ namespace Deception {
     public:
         Table() = default;
         Table(std::initializer_list<DispatchTable::value_type> items) : _table(items) { }
+        Table(const Table& other) = default;
+        Table(Table&& other) = default;
         decltype(auto) end() noexcept { return _table.end(); }
         decltype(auto) end() const noexcept { return _table.end(); }
         decltype(auto) begin() noexcept { return _table.begin(); }
         decltype(auto) begin() const noexcept { return _table.begin(); }
-        decltype(auto) cbegin() const noexcept { return _table.cbegin(); }
-        decltype(auto) cend() const noexcept { return _table.cend(); }
         decltype(auto) find(char value) noexcept { return _table.find(value); }
         decltype(auto) find(char value) const noexcept { return _table.find(value); }
         template<typename ... Ts>
         decltype(auto) emplace(Ts&&... args) noexcept {
             return _table.emplace(args...);
         }
+        decltype(auto) operator[](char&& value) noexcept { return _table.operator[](value); }
+        decltype(auto) operator[](const char&& value) noexcept { return _table.operator[](value); }
         void run(char c) noexcept;
-        void operator()(char c) noexcept;
+        void operator()(char c) noexcept { run(c); }
     private:
         DispatchTable _table;
     };
+    using TableReference = std::shared_ptr<Table>;
 } // end namespace Deception
 
 #endif //DECEPTION_TABLE_H
