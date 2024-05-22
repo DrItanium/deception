@@ -7,7 +7,8 @@ find_package(Boost
 		REQUIRED
 		COMPONENTS program_options)
 add_library(deception-core
-        include/Concepts.h
+        lib/core/Concepts.h
+        lib/core/Table.cc
 )
 add_executable(deception-interpreter
 		cmd/simple/deception.cc
@@ -20,7 +21,7 @@ install(TARGETS deception-interpreter
         DESTINATION bin)
 
 target_include_directories(deception-interpreter PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include)
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 target_include_directories(deception-core PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include)
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib)
