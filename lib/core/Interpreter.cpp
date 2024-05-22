@@ -25,8 +25,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <core/Interpreter.h>
 #include <iostream>
 namespace Deception {
-    Interpreter::Interpreter(const Table& initialTable) : _tables{initialTable}, _currentStream(&std::cin) { }
-    Interpreter::Interpreter(std::initializer_list<Table> tables) : _tables(tables), _currentStream(&std::cin) { }
+    Interpreter::Interpreter(std::initializer_list<Conclave::InputEntry> tables) : _tables(tables), _currentStream(&std::cin) { }
 
     void
     Interpreter::use(TableReference ptr) {

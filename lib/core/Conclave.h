@@ -37,25 +37,27 @@ namespace Deception {
         using Table_t = Table<Interpreter>;
         using TableReference = Table_t::SharedPtr;
         using BackingStore = std::map<std::string, TableReference>;
+        using Entry = BackingStore::value_type;
+        using InputEntry = std::pair<typename BackingStore::key_type, typename BackingStore::mapped_type::element_type>;
         Conclave() = default;
-        Conclave(std::initializer_list<Table_t> list) {
+        Conclave(std::initializer_list<InputEntry> list) {
             for (auto& a : list) {
-                _backingStore.emplace_back(std::make_shared<Table_t>(a));
+                _backingStore.emplace(a.first, std::make_shared<Table_t>(a.second));
             }
         }
         Conclave(const Conclave&) = default;
         Conclave(Conclave&&) = default;
-        auto front() const noexcept { return _backingStore.front(); }
-        auto front() noexcept { return _backingStore.front(); }
-        auto back() const noexcept { return _backingStore.back(); }
-        auto back() noexcept { return _backingStore.back(); }
         auto size() const noexcept { return _backingStore.size(); }
-        auto operator[](BackingStore::size_type index) const noexcept { return _backingStore[index]; }
-        auto operator[](BackingStore::size_type index) noexcept { return _backingStore[index]; }
+        auto operator[](const BackingStore::key_type& index) noexcept { return _backingStore[index]; }
+        auto operator[](BackingStore::key_type&& index) noexcept { return _backingStore[index]; }
         template<typename ... Ts>
         TableReference newTable(Ts&&... args) noexcept {
-            _backingStore.emplace_back(args...);
-            return back();
+            auto result = _backingStore.emplace_back(args...);
+            if (result->second)  {
+                return *(result->first);
+            } else {
+                return nullptr;
+            }
         }
     private:
         BackingStore _backingStore;

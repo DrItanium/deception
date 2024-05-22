@@ -34,6 +34,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // each action table is different so there is no header
 
 // Each table is made up of 256 entries, if they are not valid
+#if 0
 using Table = std::map<char, std::function<void()>>;
 Deception::Conclave tables;
 Deception::TableStack tableStack;
@@ -130,7 +131,7 @@ runInterpreter() {
         }
     }
 }
-
+    #endif
 int main(int argc, char** argv) {
     Deception::Interpreter theInterpreter{
 
