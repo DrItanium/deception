@@ -36,9 +36,10 @@ namespace Deception {
         using DispatchTable = std::map<char, ExecutionBody>;
         using Stack = std::stack<Table>;
         using SharedPtr = std::shared_ptr<Table>;
+        using InitializerList = std::initializer_list<DispatchTable::value_type>;
     public:
         Table() = default;
-        Table(std::initializer_list<DispatchTable::value_type> items) : _table(items) { }
+        Table(InitializerList items) : _table(items) { }
         Table(const Table& other) = default;
         Table(Table&& other) = default;
         decltype(auto) end() noexcept { return _table.end(); }

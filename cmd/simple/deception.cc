@@ -30,7 +30,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stack>
 #include <memory>
 #include <map>
-#include <core/Concepts.h>
 // each action table is different so there is no header
 
 // Each table is made up of 256 entries, if they are not valid

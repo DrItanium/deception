@@ -26,12 +26,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Created by jwscoggins on 5/21/24.
 //
 
-#ifndef DECEPTION_INTERPRETER_H
-#define DECEPTION_INTERPRETER_H
+#include "core/Conclave.h"
+
 namespace Deception {
-    class Interpreter {
-    public:
-    private:
-    };
+
 } // end namespace Deception
-#endif //DECEPTION_INTERPRETER_H

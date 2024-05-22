@@ -22,19 +22,32 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+//
+// Created by jwscoggins on 5/21/24.
+//
 
-#ifndef DECEPTION_CONCEPTS_H
-#define DECEPTION_CONCEPTS_H
-#include <functional>
-#include <map>
-#include <stack>
+#ifndef DECEPTION_CONCLAVE_H
+#define DECEPTION_CONCLAVE_H
 #include <vector>
-#include <memory>
+#include <core/Table.h>
 namespace Deception {
-    using ExecutionBody = std::function<void()>;
-    using Conclave = std::vector<ActionTable>;
-    using TableStack = std::stack<ActionTable>;
+    class Conclave {
 
+    public:
+        using TableReference = Table::SharedPtr;
+        using BackingStore = std::vector<TableReference>;
+        Conclave() = default;
+        Conclave(const Conclave&) = default;
+        Conclave(Conclave&&) = default;
+        template<typename ... Ts>
+        TableReference newTable(Ts&&... args) noexcept {
+            _backingStore.emplace_back(args...);
+            return _backingStore.back();
+        }
+    private:
+        BackingStore _backingStore;
+    };
 } // end namespace Deception
 
-#endif //DECEPTION_CONCEPTS_H
+
+#endif //DECEPTION_CONCLAVE_H
