@@ -48,6 +48,7 @@ namespace Deception {
             return _table.emplace(args...);
         }
         void run(char c) noexcept;
+        void operator()(char c) noexcept;
     private:
         DispatchTable _table;
     };
