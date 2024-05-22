@@ -28,11 +28,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <map>
 #include <functional>
 #include <memory>
+#include <stack>;
 namespace Deception {
     class Table {
     public:
         using ExecutionBody = std::function<void()>;
         using DispatchTable = std::map<char, ExecutionBody>;
+        using Stack = std::stack<Table>;
+        using SharedPtr = std::shared_ptr<Table>;
     public:
         Table() = default;
         Table(std::initializer_list<DispatchTable::value_type> items) : _table(items) { }
@@ -55,7 +58,8 @@ namespace Deception {
     private:
         DispatchTable _table;
     };
-    using TableReference = std::shared_ptr<Table>;
+    using TableReference = Table::SharedPtr;
+    using TableStack = Table::Stack;
 } // end namespace Deception
 
 #endif //DECEPTION_TABLE_H

@@ -32,8 +32,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <memory>
 namespace Deception {
     using ExecutionBody = std::function<void()>;
-    using RawTable = std::map<char, ExecutionBody>;
-    using ActionTable = std::shared_ptr<RawTable>;
     using Conclave = std::vector<ActionTable>;
     using TableStack = std::stack<ActionTable>;
 
