@@ -22,16 +22,17 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+//
+// Created by jwscoggins on 5/21/24.
+//
 
-#include <core/Table.h>
-
+#ifndef DECEPTION_INTERPRETER_H
+#define DECEPTION_INTERPRETER_H
+#include <core/Concepts.h>
 namespace Deception {
-    void
-    Table::run(char c) noexcept {
-        if (auto result = find(c); result != end()) {
-            if (result->second) {
-                result->second();
-            }
-        }
-    }
-}
+    class Interpreter {
+    public:
+    private:
+    };
+} // end namespace Deception
+#endif //DECEPTION_INTERPRETER_H

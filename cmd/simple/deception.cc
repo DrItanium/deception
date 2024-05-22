@@ -35,12 +35,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Each table is made up of 256 entries, if they are not valid
 using Table = std::map<char, std::function<void()>>;
-using ActionTable = std::shared_ptr<Table>;
-using Conclave = std::vector<ActionTable>;
-Conclave tables;
-std::stack<ActionTable> tableStack;
-ActionTable currentTable = nullptr;
-ActionTable getCurrentTable() {
+Deception::Conclave tables;
+Deception::TableStack tableStack;
+Deception::ActionTable currentTable = nullptr;
+auto getCurrentTable() noexcept {
     return currentTable;
 }
 int nestingDepth = 0;
@@ -60,7 +58,7 @@ restoreTable() {
     }
 }
 void 
-use(ActionTable target) {
+use(Deception::ActionTable target) noexcept {
     if (currentTable) {
         tableStack.push(currentTable);
     }
@@ -69,14 +67,14 @@ use(ActionTable target) {
 /**
  * @param construct a new table and point to it!
  */
-ActionTable
-newTable() {
+auto
+newTable() noexcept {
     tables.emplace_back(std::make_shared<Table>());
     return tables.back();
 }
-std::optional<uint8_t>
+std::optional<char>
 nextCharacter(std::istream& inputStream) noexcept {
-    uint8_t nextCharacter = inputStream.get();
+    char nextCharacter = inputStream.get();
     if (inputStream.fail()) {
         return std::nullopt;
     } else {

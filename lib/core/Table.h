@@ -23,15 +23,34 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <core/Table.h>
-
+#ifndef DECEPTION_TABLE_H
+#define DECEPTION_TABLE_H
+#include <map>
+#include <functional>
 namespace Deception {
-    void
-    Table::run(char c) noexcept {
-        if (auto result = find(c); result != end()) {
-            if (result->second) {
-                result->second();
-            }
+    class Table {
+    public:
+        using ExecutionBody = std::function<void()>;
+        using DispatchTable = std::map<char, ExecutionBody>;
+    public:
+        Table() = default;
+        Table(std::initializer_list<DispatchTable::value_type> items) : _table(items) { }
+        decltype(auto) end() noexcept { return _table.end(); }
+        decltype(auto) end() const noexcept { return _table.end(); }
+        decltype(auto) begin() noexcept { return _table.begin(); }
+        decltype(auto) begin() const noexcept { return _table.begin(); }
+        decltype(auto) cbegin() const noexcept { return _table.cbegin(); }
+        decltype(auto) cend() const noexcept { return _table.cend(); }
+        decltype(auto) find(char value) noexcept { return _table.find(value); }
+        decltype(auto) find(char value) const noexcept { return _table.find(value); }
+        template<typename ... Ts>
+        decltype(auto) emplace(Ts&&... args) noexcept {
+            return _table.emplace(args...);
         }
-    }
-}
+        void run(char c) noexcept;
+    private:
+        DispatchTable _table;
+    };
+} // end namespace Deception
+
+#endif //DECEPTION_TABLE_H

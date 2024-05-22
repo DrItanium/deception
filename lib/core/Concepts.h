@@ -36,6 +36,7 @@ namespace Deception {
     using ActionTable = std::shared_ptr<RawTable>;
     using Conclave = std::vector<ActionTable>;
     using TableStack = std::stack<ActionTable>;
+
 } // end namespace Deception
 
 #endif //DECEPTION_CONCEPTS_H

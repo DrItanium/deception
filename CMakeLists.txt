@@ -9,6 +9,9 @@ find_package(Boost
 add_library(deception-core
         lib/core/Concepts.h
         lib/core/Table.cc
+        lib/core/Interpreter.h
+        lib/core/Interpreter.cpp
+        lib/core/Table.h
 )
 add_executable(deception-interpreter
 		cmd/simple/deception.cc
