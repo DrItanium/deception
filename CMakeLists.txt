@@ -6,12 +6,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 find_package(Boost
 		REQUIRED
 		COMPONENTS program_options)
-
-add_executable(deception
+add_library(deception-core
+        include/Concepts.h
+)
+add_executable(deception-interpreter
 		cmd/simple/deception.cc
 		)
-target_link_libraries(deception
-		Boost::program_options)
-install(TARGETS deception DESTINATION bin)
+target_link_libraries(deception-interpreter
+		Boost::program_options
+        deception-core
+)
+install(TARGETS deception-interpreter
+        DESTINATION bin)
 
-#target_include_directories(deception PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(deception-interpreter PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+target_include_directories(deception-core PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include)
