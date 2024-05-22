@@ -28,10 +28,37 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef DECEPTION_INTERPRETER_H
 #define DECEPTION_INTERPRETER_H
+#include <istream>
+#include <core/Table.h>
+#include <core/Conclave.h>
 namespace Deception {
     class Interpreter {
     public:
+        using Conclave = Deception::Conclave<Interpreter>;
+        using Table = Deception::Table<Interpreter>;
+        using TableReference = Conclave::TableReference;
+        Interpreter(const Table& initialTable);
+        Interpreter(std::initializer_list<Table> tables);
+        void use(TableReference ptr);
+        void restore();
+        void run();
+        char next();
+        bool stopProcessing() const noexcept;
+        template<typename ... Ts>
+        TableReference newTable(Ts&& ... args) noexcept {
+            return _tables.newTable(args...);
+        }
+        auto firstTable() const noexcept { return _tables.front(); }
+        auto firstTable() noexcept { return _tables.front(); }
+        auto lastTable() const noexcept { return _tables.back(); }
+        auto lastTable() noexcept { return _tables.back(); }
+        auto operator[](Conclave::BackingStore::size_type index) noexcept { return _tables[index]; }
+        auto operator[](Conclave::BackingStore::size_type index) const noexcept { return _tables[index]; }
     private:
+        std::stack<Table::SharedPtr> _executionStack;
+        Table::SharedPtr _current;
+        Conclave _tables;
+        std::istream* _currentStream;
     };
 } // end namespace Deception
 #endif //DECEPTION_INTERPRETER_H

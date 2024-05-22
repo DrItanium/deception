@@ -31,19 +31,31 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <vector>
 #include <core/Table.h>
 namespace Deception {
+    template<typename Interpreter>
     class Conclave {
-
     public:
-        using TableReference = Table::SharedPtr;
+        using Table_t = Table<Interpreter>;
+        using TableReference = Table_t::SharedPtr;
         using BackingStore = std::vector<TableReference>;
         Conclave() = default;
-        Conclave(std::initializer_list<Table> list);
+        Conclave(std::initializer_list<Table_t> list) {
+            for (auto& a : list) {
+                _backingStore.emplace_back(std::make_shared<Table_t>(a));
+            }
+        }
         Conclave(const Conclave&) = default;
         Conclave(Conclave&&) = default;
+        auto front() const noexcept { return _backingStore.front(); }
+        auto front() noexcept { return _backingStore.front(); }
+        auto back() const noexcept { return _backingStore.back(); }
+        auto back() noexcept { return _backingStore.back(); }
+        auto size() const noexcept { return _backingStore.size(); }
+        auto operator[](BackingStore::size_type index) const noexcept { return _backingStore[index]; }
+        auto operator[](BackingStore::size_type index) noexcept { return _backingStore[index]; }
         template<typename ... Ts>
         TableReference newTable(Ts&&... args) noexcept {
             _backingStore.emplace_back(args...);
-            return _backingStore.back();
+            return back();
         }
     private:
         BackingStore _backingStore;

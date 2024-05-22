@@ -23,6 +23,39 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <core/Interpreter.h>
+#include <iostream>
 namespace Deception {
+    Interpreter::Interpreter(const Table& initialTable) : _tables{initialTable}, _currentStream(&std::cin) { }
+    Interpreter::Interpreter(std::initializer_list<Table> tables) : _tables(tables), _currentStream(&std::cin) { }
 
+    void
+    Interpreter::use(TableReference ptr) {
+        _executionStack.push(_current);
+        _current = ptr;
+    }
+    void
+    Interpreter::restore() {
+        if (!_executionStack.empty()) {
+            _current = _executionStack.top();
+            _executionStack.pop();
+        }
+    }
+    void
+    Interpreter::run() {
+        do {
+            if (auto current = next(); stopProcessing()) {
+                break;
+            } else {
+                (*_current)(current, *this);
+            }
+        } while (true);
+    }
+    char
+    Interpreter::next() {
+        return static_cast<char>(_currentStream->get());
+    }
+    bool
+    Interpreter::stopProcessing() const noexcept {
+        return _currentStream->fail();
+    }
 } // end namespace Deception

@@ -30,13 +30,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <memory>
 #include <stack>
 namespace Deception {
+    template<typename Interpreter>
     class Table {
     public:
-        using ExecutionBody = std::function<void()>;
+        using ExecutionBody = std::function<void(Interpreter& self)>;
         using DispatchTable = std::map<char, ExecutionBody>;
-        using Stack = std::stack<Table>;
         using SharedPtr = std::shared_ptr<Table>;
-        using InitializerList = std::initializer_list<DispatchTable::value_type>;
+        using InitializerList = std::initializer_list<typename DispatchTable::value_type>;
     public:
         Table() = default;
         Table(InitializerList items) : _table(items) { }
@@ -54,8 +54,14 @@ namespace Deception {
         }
         decltype(auto) operator[](char&& value) noexcept { return _table.operator[](value); }
         decltype(auto) operator[](const char&& value) noexcept { return _table.operator[](value); }
-        void run(char c) noexcept;
-        void operator()(char c) noexcept { run(c); }
+        void run(char c, Interpreter& i) noexcept {
+            if (auto result = find(c); result != end()) {
+                if (result->second) {
+                    result->second(i);
+                }
+            }
+        }
+        void operator()(char c, Interpreter& i) noexcept { run(c, i); }
     private:
         DispatchTable _table;
     };

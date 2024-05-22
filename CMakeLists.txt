@@ -7,11 +7,9 @@ find_package(Boost
 		REQUIRED
 		COMPONENTS program_options)
 add_library(deception-core
-        lib/core/Table.cc
         lib/core/Interpreter.h
         lib/core/Interpreter.cpp
         lib/core/Table.h
-        lib/core/Conclave.cpp
         lib/core/Conclave.h
 )
 add_executable(deception-interpreter
