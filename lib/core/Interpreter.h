@@ -37,6 +37,7 @@ namespace Deception {
         using Conclave = Deception::Conclave<Interpreter>;
         using Table = Deception::Table<Interpreter>;
         using TableReference = Conclave::TableReference;
+        Interpreter() = default;
         Interpreter(const Table& initialTable);
         Interpreter(std::initializer_list<Table> tables);
         void use(TableReference ptr);

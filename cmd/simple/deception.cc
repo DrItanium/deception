@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stack>
 #include <memory>
 #include <map>
+#include <core/Interpreter.h>
 // each action table is different so there is no header
 
 // Each table is made up of 256 entries, if they are not valid
@@ -131,7 +132,11 @@ runInterpreter() {
 }
 
 int main(int argc, char** argv) {
-    setupInitialInterpreter();
-    runInterpreter();
+    Deception::Interpreter theInterpreter{
+
+    };
+    theInterpreter.run();
+    //setupInitialInterpreter();
+    //runInterpreter();
     return 0;
 }

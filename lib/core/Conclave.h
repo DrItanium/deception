@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef DECEPTION_CONCLAVE_H
 #define DECEPTION_CONCLAVE_H
-#include <vector>
+#include <map>
 #include <core/Table.h>
 namespace Deception {
     template<typename Interpreter>
@@ -36,7 +36,7 @@ namespace Deception {
     public:
         using Table_t = Table<Interpreter>;
         using TableReference = Table_t::SharedPtr;
-        using BackingStore = std::vector<TableReference>;
+        using BackingStore = std::map<std::string, TableReference>;
         Conclave() = default;
         Conclave(std::initializer_list<Table_t> list) {
             for (auto& a : list) {
