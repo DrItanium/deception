@@ -131,11 +131,23 @@ runInterpreter() {
         }
     }
 }
-    #endif
+#endif
 int main(int argc, char** argv) {
     Deception::Interpreter theInterpreter{
-
+            {
+                    {"core",
+                     {{ '?',
+                        [](Deception::Interpreter& interpreter) {
+                            for (const auto& a : *(interpreter.getCurrentTable())) {
+                                std::cout << a.first << std::endl;
+                            }
+                        }},
+                     }
+                    }
+            }
     };
+    theInterpreter.use("core");
+    std::cout << "CTRL-D to quit" << std::endl;
     theInterpreter.run();
     //setupInitialInterpreter();
     //runInterpreter();

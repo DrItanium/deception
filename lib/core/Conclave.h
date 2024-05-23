@@ -50,6 +50,13 @@ namespace Deception {
         auto size() const noexcept { return _backingStore.size(); }
         auto operator[](const BackingStore::key_type& index) noexcept { return _backingStore[index]; }
         auto operator[](BackingStore::key_type&& index) noexcept { return _backingStore[index]; }
+        TableReference find(const BackingStore::key_type&  name)  {
+            if (auto result = _backingStore.find(name); result != _backingStore.end()) {
+                return result->second;
+            } else {
+                return nullptr;
+            }
+        }
         template<typename ... Ts>
         TableReference newTable(Ts&&... args) noexcept {
             auto result = _backingStore.emplace_back(args...);

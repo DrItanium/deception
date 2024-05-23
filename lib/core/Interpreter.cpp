@@ -26,11 +26,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 namespace Deception {
     Interpreter::Interpreter(std::initializer_list<Conclave::InputEntry> tables) : _tables(tables), _currentStream(&std::cin) { }
-
+    void
+    Interpreter::use(const std::string& name) {
+        use(_tables.find(name));
+    }
     void
     Interpreter::use(TableReference ptr) {
-        _executionStack.push(_current);
-        _current = ptr;
+        if (_current) {
+            _executionStack.push(_current);
+        }
+        if (ptr) {
+            _current = ptr;
+        }
     }
     void
     Interpreter::restore() {

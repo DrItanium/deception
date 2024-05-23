@@ -40,11 +40,13 @@ namespace Deception {
         using ListEntry = typename Conclave::InputEntry;
         Interpreter() = default;
         Interpreter(std::initializer_list<ListEntry> tables);
+        void use(const std::string& name);
         void use(TableReference ptr);
         void restore();
         void run();
         char next();
         bool stopProcessing() const noexcept;
+        [[nodiscard]] TableReference getCurrentTable() noexcept { return _current; }
         template<typename ... Ts>
         TableReference newTable(Ts&& ... args) noexcept {
             return _tables.newTable(args...);
@@ -53,9 +55,9 @@ namespace Deception {
         auto operator[](Conclave::BackingStore::key_type&& index) noexcept { return _tables[index]; }
     private:
         std::stack<Table::SharedPtr> _executionStack;
-        Table::SharedPtr _current;
+        Table::SharedPtr _current = nullptr;
         Conclave _tables;
-        std::istream* _currentStream;
+        std::istream* _currentStream = nullptr;
     };
 } // end namespace Deception
 #endif //DECEPTION_INTERPRETER_H
