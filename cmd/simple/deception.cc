@@ -132,16 +132,19 @@ runInterpreter() {
     }
 }
 #endif
+void displayCurrentTableContents(Deception::Interpreter& interpreter) {
+    for (const auto& a : *(interpreter.getCurrentTable())) {
+        std::cout << a.first << std::endl;
+    }
+}
 int main(int argc, char** argv) {
     Deception::Interpreter theInterpreter{
             {
+                    {"single line comment", { {'\n', [](Deception::Interpreter& interpreter) { interpreter.restore(); }} } },
                     {"core",
-                     {{ '?',
-                        [](Deception::Interpreter& interpreter) {
-                            for (const auto& a : *(interpreter.getCurrentTable())) {
-                                std::cout << a.first << std::endl;
-                            }
-                        }},
+                     {
+                        { '#', [](Deception::Interpreter& interpreter) {interpreter.use("single line comment"); } },
+                        { '?', displayCurrentTableContents },
                      }
                     }
             }
