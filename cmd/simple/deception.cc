@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // each action table is different so there is no header
 
 // Each table is made up of 256 entries, if they are not valid
-void displayCurrentTableContents(Deception::Interpreter& interpreter) {
+void displayCurrentTableContents(Deception::Interpreter& interpreter, char) {
     for (const auto& a : *(interpreter.getCurrentTable())) {
         std::cout << a.first << std::endl;
     }
@@ -39,11 +39,11 @@ void displayCurrentTableContents(Deception::Interpreter& interpreter) {
 int main(int argc, char** argv) {
     Deception::Interpreter theInterpreter{
             {
-                    {"single line comment", { {'\n', [](Deception::Interpreter& interpreter) { interpreter.restore(); }} } },
+                    {"single line comment", { {'\n', [](Deception::Interpreter& interpreter, char) { interpreter.restore(); }} } },
                     {"core",
                      {
-                             { Deception::Opcodes::Ascii::EOT, [](auto& interpreter) { interpreter.terminate(); } },
-                             { '#', [](Deception::Interpreter& interpreter) {interpreter.use("single line comment"); } },
+                             { Deception::Opcodes::Ascii::EOT, [](auto& interpreter, char) { interpreter.terminate(); } },
+                             { '#', [](Deception::Interpreter& interpreter, char) {interpreter.use("single line comment"); } },
                              { '?', displayCurrentTableContents },
                      }
                     }

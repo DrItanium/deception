@@ -34,15 +34,19 @@ namespace Deception {
     template<typename Interpreter>
     class Table {
     public:
-        using ExecutionBody = std::function<void(Interpreter& self)>;
+        using ExecutionBody = std::function<void(Interpreter& self, char character)>;
+        using TableEnterFunction = std::function<void(Interpreter&)>;
+        using TableExitFunction = std::function<void(Interpreter&)>;
         using DispatchTable = std::map<char, ExecutionBody>;
         using SharedPtr = std::shared_ptr<Table>;
         using InitializerList = std::initializer_list<typename DispatchTable::value_type>;
     private:
-        static void doNothing(Interpreter&) { }
+        static void doNothing(Interpreter&, char) { }
+        static void doNothing(Interpreter&) {}
     public:
         Table() = default;
-        Table(InitializerList items, ExecutionBody onEnter = doNothing, ExecutionBody onLeave = doNothing) : _table(items), _onEnter(onEnter), _onLeave(onLeave) { }
+        Table(InitializerList items, TableEnterFunction onEnter, TableExitFunction onLeave, ExecutionBody defaultState) : _table(items), _onEnter(onEnter), _onLeave(onLeave), _fallback(defaultState) { }
+        Table(InitializerList items) : _table(items) { }
         Table(const Table& other) = default;
         Table(Table&& other) = default;
         virtual ~Table() = default;
@@ -58,10 +62,12 @@ namespace Deception {
         }
         decltype(auto) operator[](char&& value) noexcept { return _table.operator[](value); }
         decltype(auto) operator[](const char&& value) noexcept { return _table.operator[](value); }
-        virtual void run(char c, Interpreter& i) noexcept {
+        virtual void run(char c, Interpreter& i) {
             if (auto result = find(c); result != end()) {
                 if (result->second) {
-                    result->second(i);
+                    result->second(i, c);
+                } else {
+                   _fallback(i, c);
                 }
             }
         }
@@ -74,8 +80,9 @@ namespace Deception {
         }
     private:
         DispatchTable _table;
-        ExecutionBody _onEnter;
-        ExecutionBody _onLeave;
+        TableEnterFunction _onEnter = [](auto& i) { doNothing(i); };
+        TableEnterFunction _onLeave = [](auto& i) { doNothing(i); };
+        ExecutionBody _fallback = [](auto& i, char c) { doNothing(i, c); };
     };
 } // end namespace Deception
 
