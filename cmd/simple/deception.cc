@@ -24,114 +24,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <iostream>
-#include <functional>
-#include <cstdint>
 #include <optional>
-#include <stack>
-#include <memory>
-#include <map>
 #include <core/Interpreter.h>
+
 // each action table is different so there is no header
 
 // Each table is made up of 256 entries, if they are not valid
-#if 0
-using Table = std::map<char, std::function<void()>>;
-Deception::Conclave tables;
-Deception::TableStack tableStack;
-Deception::ActionTable currentTable = nullptr;
-auto getCurrentTable() noexcept {
-    return currentTable;
-}
-int nestingDepth = 0;
-void
-resetTable() {
-    while (!tableStack.empty()) {
-        tableStack.pop();
-    }
-    currentTable = tables[0]; // go back to the initial table 
-    nestingDepth = 0;
-}
-void 
-restoreTable() {
-    if (!tableStack.empty()) {
-        currentTable = tableStack.top();
-        tableStack.pop();
-    }
-}
-void 
-use(Deception::ActionTable target) noexcept {
-    if (currentTable) {
-        tableStack.push(currentTable);
-    }
-    currentTable = target;
-}
-/**
- * @param construct a new table and point to it!
- */
-auto
-newTable() noexcept {
-    tables.emplace_back(std::make_shared<Table>());
-    return tables.back();
-}
-std::optional<char>
-nextCharacter(std::istream& inputStream) noexcept {
-    char nextCharacter = inputStream.get();
-    if (inputStream.fail()) {
-        return std::nullopt;
-    } else {
-        return nextCharacter;
-    }
-}
-void 
-setupInitialInterpreter() {
-    auto basicTable = newTable(); 
-    auto parenLookupTable = newTable();
-    auto singleLineCommentTable = newTable();
-    resetTable();
-    basicTable->emplace('#', [singleLineCommentTable]() { use(singleLineCommentTable); });
-    // this is an example
-    basicTable->emplace('(',
-                        [parenLookupTable]() {
-                            // consume characters until you find a matching ')'
-                            // but in this case we just need to switch to a different table
-                            use(parenLookupTable);
-                            nestingDepth = 1;
-                        });
-    singleLineCommentTable->emplace('\n', []() { restoreTable(); });
-    parenLookupTable->emplace('(', []() { ++nestingDepth; });
-    parenLookupTable->emplace(')', []() {
-        --nestingDepth;
-        if (nestingDepth <= 0) {
-            nestingDepth = 0;
-            restoreTable(); // go back to the previous table
-        }
-    });
-    basicTable->emplace('?',
-                        [basicTable]() {
-                            std::cout << "available words" << std::endl;
-                            for (auto a : *basicTable) {
-                                std::cout << a.first << std::endl;
-                            }
-                        });
-}
-void 
-runInterpreter() {
-    std::cout << "CTRL-D to quit" << std::endl;
-    while (true) {
-        if (auto theCharacter = nextCharacter(std::cin); theCharacter) {
-            // now do a table lookup
-            if (auto lookup = getCurrentTable()->find(*theCharacter); lookup != getCurrentTable()->end()) {
-                lookup->second();
-            }
-        } else {
-            // in this case, we want to perform error handling which only
-            // happens when we run out of characters, we should break since you
-            // pressed ctrl-d
-            break;
-        }
-    }
-}
-#endif
 void displayCurrentTableContents(Deception::Interpreter& interpreter) {
     for (const auto& a : *(interpreter.getCurrentTable())) {
         std::cout << a.first << std::endl;
@@ -143,8 +41,9 @@ int main(int argc, char** argv) {
                     {"single line comment", { {'\n', [](Deception::Interpreter& interpreter) { interpreter.restore(); }} } },
                     {"core",
                      {
-                        { '#', [](Deception::Interpreter& interpreter) {interpreter.use("single line comment"); } },
-                        { '?', displayCurrentTableContents },
+                             { Deception::Opcodes::EOT, [](auto& interpreter) { interpreter.terminate(); } },
+                             { '#', [](Deception::Interpreter& interpreter) {interpreter.use("single line comment"); } },
+                             { '?', displayCurrentTableContents },
                      }
                     }
             }
@@ -152,7 +51,5 @@ int main(int argc, char** argv) {
     theInterpreter.use("core");
     std::cout << "CTRL-D to quit" << std::endl;
     theInterpreter.run();
-    //setupInitialInterpreter();
-    //runInterpreter();
     return 0;
 }

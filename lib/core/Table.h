@@ -65,6 +65,11 @@ namespace Deception {
     private:
         DispatchTable _table;
     };
+    namespace Opcodes {
+#define X(name, code) constexpr char name = static_cast<char>( code ) ;
+#include "AsciiCodes.def"
+#undef X
+    }
 } // end namespace Deception
 
 #endif //DECEPTION_TABLE_H

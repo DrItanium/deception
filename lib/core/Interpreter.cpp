@@ -62,6 +62,10 @@ namespace Deception {
     }
     bool
     Interpreter::stopProcessing() const noexcept {
-        return _currentStream->fail();
+        return _currentStream->fail() || !_executing;
+    }
+    void
+    Interpreter::terminate() noexcept {
+        _executing = false;
     }
 } // end namespace Deception

@@ -53,11 +53,13 @@ namespace Deception {
         }
         auto operator[](const Conclave::BackingStore::key_type& index) noexcept { return _tables[index]; }
         auto operator[](Conclave::BackingStore::key_type&& index) noexcept { return _tables[index]; }
+        void terminate() noexcept;
     private:
         std::stack<Table::SharedPtr> _executionStack;
         Table::SharedPtr _current = nullptr;
         Conclave _tables;
         std::istream* _currentStream = nullptr;
+        bool _executing = true;
     };
 } // end namespace Deception
 #endif //DECEPTION_INTERPRETER_H
