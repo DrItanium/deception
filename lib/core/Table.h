@@ -32,17 +32,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 namespace Deception {
     template<typename Interpreter>
-    class Table {
+    class Codes {
     public:
         using ExecutionBody = std::function<void(Interpreter& self)>;
         using DispatchTable = std::map<char, ExecutionBody>;
-        using SharedPtr = std::shared_ptr<Table>;
+        using SharedPtr = std::shared_ptr<Codes>;
         using InitializerList = std::initializer_list<typename DispatchTable::value_type>;
     public:
-        Table() = default;
-        Table(InitializerList items) : _table(items) { }
-        Table(const Table& other) = default;
-        Table(Table&& other) = default;
+        Codes() = default;
+        Codes(InitializerList items) : _table(items) { }
+        Codes(const Codes& other) = default;
+        Codes(Codes&& other) = default;
         decltype(auto) end() noexcept { return _table.end(); }
         decltype(auto) end() const noexcept { return _table.end(); }
         decltype(auto) begin() noexcept { return _table.begin(); }
@@ -63,21 +63,12 @@ namespace Deception {
             }
         }
         void operator()(char c, Interpreter& i) noexcept { run(c, i); }
+        virtual void enterTable() {
+
+        }
     private:
         DispatchTable _table;
     };
-    namespace Opcodes {
-#define DeclareControlCode(name, code) constexpr char name = static_cast<char>( code ) ;
-#define DeclareAlias(name, reference) DeclareControlCode(name, reference)
-#define StartGroup(name) namespace name {
-#define EndGroup(name) }
-#include <core/AsciiCodes.def>
-#undef DeclareControlCode
-#undef DeclareAlias
-#undef StartGroup
-#undef EndGroup
-        std::string decode(char input) noexcept;
-    }
 } // end namespace Deception
 
 #endif //DECEPTION_TABLE_H

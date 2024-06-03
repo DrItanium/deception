@@ -13,7 +13,8 @@ add_library(deception-core
         lib/core/Interpreter.cpp
         lib/core/Table.h
         lib/core/Conclave.h
-        lib/core/Table.cc
+        lib/core/Codes.cc
+        lib/core/Codes.h
 )
 add_executable(deception-interpreter
 		cmd/simple/deception.cc

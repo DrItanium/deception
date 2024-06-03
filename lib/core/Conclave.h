@@ -34,7 +34,7 @@ namespace Deception {
     template<typename Interpreter>
     class Conclave {
     public:
-        using Table_t = Table<Interpreter>;
+        using Table_t = Codes<Interpreter>;
         using TableReference = Table_t::SharedPtr;
         using BackingStore = std::map<std::string, TableReference>;
         using Entry = BackingStore::value_type;

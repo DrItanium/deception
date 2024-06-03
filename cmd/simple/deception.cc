@@ -26,6 +26,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 #include <optional>
 #include <core/Interpreter.h>
+#include <core/Codes.h>
 
 // each action table is different so there is no header
 
@@ -35,13 +36,17 @@ void displayCurrentTableContents(Deception::Interpreter& interpreter) {
         std::cout << a.first << std::endl;
     }
 }
+void
+addToString(Deception::Interpreter& interpreter) {
+
+}
 int main(int argc, char** argv) {
     Deception::Interpreter theInterpreter{
             {
                     {"single line comment", { {'\n', [](Deception::Interpreter& interpreter) { interpreter.restore(); }} } },
                     {"core",
                      {
-                             { Deception::Opcodes::EOT, [](auto& interpreter) { interpreter.terminate(); } },
+                             { Deception::Opcodes::Ascii::EOT, [](auto& interpreter) { interpreter.terminate(); } },
                              { '#', [](Deception::Interpreter& interpreter) {interpreter.use("single line comment"); } },
                              { '?', displayCurrentTableContents },
                      }
