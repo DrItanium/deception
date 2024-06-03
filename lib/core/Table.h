@@ -58,7 +58,7 @@ namespace Deception {
         }
         decltype(auto) operator[](char&& value) noexcept { return _table.operator[](value); }
         decltype(auto) operator[](const char&& value) noexcept { return _table.operator[](value); }
-        void run(char c, Interpreter& i) noexcept {
+        virtual void run(char c, Interpreter& i) noexcept {
             if (auto result = find(c); result != end()) {
                 if (result->second) {
                     result->second(i);
