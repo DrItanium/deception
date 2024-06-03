@@ -35,7 +35,7 @@ namespace Deception {
     class Interpreter {
     public:
         using Conclave = Deception::Conclave<Interpreter>;
-        using Table = Deception::Codes<Interpreter>;
+        using Table = Deception::Table<Interpreter>;
         using TableReference = Conclave::TableReference;
         using ListEntry = typename Conclave::InputEntry;
         Interpreter() = default;

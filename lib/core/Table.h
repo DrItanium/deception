@@ -32,17 +32,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 namespace Deception {
     template<typename Interpreter>
-    class Codes {
+    class Table {
     public:
         using ExecutionBody = std::function<void(Interpreter& self)>;
         using DispatchTable = std::map<char, ExecutionBody>;
-        using SharedPtr = std::shared_ptr<Codes>;
+        using SharedPtr = std::shared_ptr<Table>;
         using InitializerList = std::initializer_list<typename DispatchTable::value_type>;
+    private:
+        static void doNothing(Interpreter&) { }
     public:
-        Codes() = default;
-        Codes(InitializerList items) : _table(items) { }
-        Codes(const Codes& other) = default;
-        Codes(Codes&& other) = default;
+        Table() = default;
+        Table(InitializerList items, ExecutionBody onEnter = doNothing, ExecutionBody onLeave = doNothing) : _table(items), _onEnter(onEnter), _onLeave(onLeave) { }
+        Table(const Table& other) = default;
+        Table(Table&& other) = default;
+        virtual ~Table() = default;
         decltype(auto) end() noexcept { return _table.end(); }
         decltype(auto) end() const noexcept { return _table.end(); }
         decltype(auto) begin() noexcept { return _table.begin(); }
@@ -63,11 +66,16 @@ namespace Deception {
             }
         }
         void operator()(char c, Interpreter& i) noexcept { run(c, i); }
-        virtual void enterTable() {
-
+        virtual void enterTable(Interpreter& interpreter) {
+            _onEnter(interpreter);
+        }
+        virtual void leaveTable(Interpreter& interpreter) {
+            _onLeave(interpreter);
         }
     private:
         DispatchTable _table;
+        ExecutionBody _onEnter;
+        ExecutionBody _onLeave;
     };
 } // end namespace Deception
 

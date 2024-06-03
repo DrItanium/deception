@@ -36,10 +36,6 @@ void displayCurrentTableContents(Deception::Interpreter& interpreter) {
         std::cout << a.first << std::endl;
     }
 }
-void
-addToString(Deception::Interpreter& interpreter) {
-
-}
 int main(int argc, char** argv) {
     Deception::Interpreter theInterpreter{
             {

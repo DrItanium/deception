@@ -33,15 +33,18 @@ namespace Deception {
     void
     Interpreter::use(TableReference ptr) {
         if (_current) {
+            _current->leaveTable(*this);
             _executionStack.push(_current);
         }
         if (ptr) {
             _current = ptr;
+            _current->enterTable(*this);
         }
     }
     void
     Interpreter::restore() {
         if (!_executionStack.empty()) {
+            _current->leaveTable(*this);
             _current = _executionStack.top();
             _executionStack.pop();
         }
