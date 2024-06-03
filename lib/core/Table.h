@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <functional>
 #include <memory>
 #include <stack>
+#include <string>
 namespace Deception {
     template<typename Interpreter>
     class Table {
@@ -67,8 +68,12 @@ namespace Deception {
     };
     namespace Opcodes {
 #define X(name, code) constexpr char name = static_cast<char>( code ) ;
-#include "AsciiCodes.def"
+#define Y(name, reference) X(name, reference)
+#include <core/AsciiCodes.def>
+
+#undef Y
 #undef X
+        std::string decode(char input) noexcept;
     }
 } // end namespace Deception
 
