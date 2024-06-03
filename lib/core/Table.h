@@ -68,7 +68,7 @@ namespace Deception {
                     result->second(i, c);
                 }
             } else {
-                _fallback(i, c);
+                doFallback(i, c);
             }
         }
         void operator()(char c, Interpreter& i) noexcept { run(c, i); }
@@ -77,6 +77,9 @@ namespace Deception {
         }
         virtual void leaveTable(Interpreter& interpreter) {
             _onLeave(interpreter);
+        }
+        virtual void doFallback(Interpreter& interpreter, char c) {
+            _fallback(interpreter, c);
         }
     private:
         DispatchTable _table;

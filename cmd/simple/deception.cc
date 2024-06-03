@@ -55,12 +55,36 @@ displayTopItemOnDataStack(Deception::Interpreter& interpreter, char) {
     }
 }
 
+
+template<typename Interpreter>
+class StringMaker : public Deception::Table<Interpreter> {
+    using Parent = Deception::Table<Interpreter>;
+public:
+    explicit StringMaker(char terminatorCharacter) : Parent( {{ terminatorCharacter, [](auto& i, char) { i.restore(); } } }) { }
+    ~StringMaker() override = default;
+    void clear() noexcept { _backingStore.str(""); }
+    [[nodiscard]] std::string str() const noexcept {
+        std::string str = _backingStore.str();
+        return str;
+    }
+    void enterTable(Interpreter&) override { clear(); }
+    void leaveTable(Interpreter& interpreter) override { interpreter.pushElement(str()); }
+    void doFallback(Interpreter&, char c) override {
+        _backingStore.put(c);
+    }
+private:
+    std::stringstream _backingStore;
+
+};
+
 int
 main(int argc, char** argv) {
     std::stringstream builder;
     Deception::Interpreter theInterpreter{
             {
                     {"single line comment", { {'\n', [](Deception::Interpreter& interpreter, char) { interpreter.restore(); }} } },
+                    {"read line", StringMaker<Deception::Interpreter>{'\n'} },
+#if 0
                     {"read string",
                      {
                              {{'\n', [](auto& i, char) { i.restore(); }}},
@@ -72,11 +96,13 @@ main(int argc, char** argv) {
                              [&builder](auto& i, char c) { builder.put(c); }
                      }
                      },
+#endif
                     {"core",
                      {
                              { Deception::Opcodes::Ascii::EOT, [](auto& interpreter, char) { interpreter.terminate(); } },
+                             { 'q', [](auto& interpreter, char) { interpreter.terminate(); } }, // quit the interpreter
                              { '#', [](Deception::Interpreter& interpreter, char) {interpreter.use("single line comment"); } },
-                             { '!', [](auto& interpreter, char) { interpreter.use("read string"); }},
+                             { '!', [](auto& interpreter, char) { interpreter.use("read line"); }},
                              { '.', displayTopItemOnDataStack },
                              { '?', displayCurrentTableContents },
                      }
