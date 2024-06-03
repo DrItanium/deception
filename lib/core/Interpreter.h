@@ -63,7 +63,11 @@ namespace Deception {
         void pushElement(T value) noexcept {
             _dataStack.push_back(value);
         }
-
+        auto dataStackBegin() const noexcept { return _dataStack.cbegin(); }
+        auto dataStackEnd() const noexcept { return _dataStack.cend(); }
+        auto dataStackReverseBegin() const noexcept { return _dataStack.crbegin(); }
+        auto dataStackReverseEnd() const noexcept { return _dataStack.crend(); }
+        [[nodiscard]] auto dataStackSize() const noexcept { return _dataStack.size(); }
     private:
         DataStack _dataStack;
         ExecutionStack _executionStack;

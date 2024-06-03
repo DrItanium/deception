@@ -40,14 +40,18 @@ void displayCurrentTableContents(Deception::Interpreter& interpreter, char) {
 
 void
 displayTopItemOnDataStack(Deception::Interpreter& interpreter, char) {
-    if (auto value = interpreter.popElement(); !value) {
-        std::cout << "stack empty!" << std::endl;
+    if (interpreter.dataStackEmpty())  {
+        std::cout << "data stack empty!" << std::endl;
     } else {
-        if (auto internalValue = *value; internalValue) {
-            std::visit( [](auto&& value) { std::cout << value << std::endl; },  *internalValue);
-        } else {
-            std::cout << "null" << std::endl;
+        std::cout << "top of stack" << std::endl;
+        for (auto i = interpreter.dataStackReverseBegin(); i != interpreter.dataStackReverseEnd(); ++i) {
+            if (auto internalValue = *i; internalValue) {
+                std::visit([](auto&& value) { std::cout << "- " << value << std::endl; }, *internalValue);
+            } else {
+                std::cout << "- null" << std::endl;
+            }
         }
+        std::cout << "bottom of stack" << std::endl;
     }
 }
 
