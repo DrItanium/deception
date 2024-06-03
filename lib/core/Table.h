@@ -67,12 +67,15 @@ namespace Deception {
         DispatchTable _table;
     };
     namespace Opcodes {
-#define X(name, code) constexpr char name = static_cast<char>( code ) ;
-#define Y(name, reference) X(name, reference)
+#define DeclareControlCode(name, code) constexpr char name = static_cast<char>( code ) ;
+#define DeclareAlias(name, reference) DeclareControlCode(name, reference)
+#define StartGroup(name) namespace name {
+#define EndGroup(name) }
 #include <core/AsciiCodes.def>
-
-#undef Y
-#undef X
+#undef DeclareControlCode
+#undef DeclareAlias
+#undef StartGroup
+#undef EndGroup
         std::string decode(char input) noexcept;
     }
 } // end namespace Deception

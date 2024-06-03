@@ -29,11 +29,15 @@ namespace Deception::Opcodes {
     std::string
     decode(char value) noexcept {
         switch (value) {
-#define X(name, code) case static_cast<char>(code) : return #name ;
-#define Y(name, alias)
+#define DeclareControlCode(name, code) case static_cast<char>(code) : return #name ;
+#define DeclareAlias(name, alias)
+#define StartGroup(name)
+#define EndGroup(name)
 #include <core/AsciiCodes.def>
-#undef Y
-#undef X
+#undef DeclareAlias
+#undef DeclareControlCode
+#undef StartGroup
+#undef EndGroup
             default:
                 return std::string{&value, 1};
         }
