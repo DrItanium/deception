@@ -29,6 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef DECEPTION_INTERPRETER_H
 #define DECEPTION_INTERPRETER_H
 #include <istream>
+#include <sstream>
+#include <list>
 #include <core/Value.h>
 #include <core/Table.h>
 #include <core/Conclave.h>
@@ -39,6 +41,8 @@ namespace Deception {
         using Table = Deception::Table<Interpreter>;
         using TableReference = Conclave::TableReference;
         using ListEntry = typename Conclave::InputEntry;
+        using DataStack = std::list<Value>;
+        using ExecutionStack = std::stack<Table::SharedPtr>;
         Interpreter() = default;
         Interpreter(std::initializer_list<ListEntry> tables);
         void use(const std::string& name);
@@ -51,27 +55,23 @@ namespace Deception {
         auto operator[](const Conclave::BackingStore::key_type& index) noexcept { return _tables[index]; }
         auto operator[](Conclave::BackingStore::key_type&& index) noexcept { return _tables[index]; }
         void terminate() noexcept;
-        std::optional<Value> popElement() noexcept {
-           if (_dataStack.empty())  {
-               return std::nullopt;
-           } else {
-               Value result = _dataStack.top();
-               _dataStack.pop();
-               return result;
-           }
-        }
+        void insertIntoInputStream(const std::string& value) noexcept;
+        void insertIntoInputStream(char value) noexcept;
+        std::optional<Value> popElement() noexcept;
+        [[nodiscard]] bool dataStackEmpty() const noexcept;
         template<typename T>
         void pushElement(T value) noexcept {
-            _dataStack.push(value);
+            _dataStack.push_back(value);
         }
-        bool dataStackEmpty() const noexcept { return _dataStack.empty(); }
+
     private:
-        std::stack<Value> _dataStack;
-        std::stack<Table::SharedPtr> _executionStack;
+        DataStack _dataStack;
+        ExecutionStack _executionStack;
         Table::SharedPtr _current = nullptr;
         Conclave _tables;
         std::istream* _currentStream = nullptr;
         bool _executing = true;
+        std::stringstream _overrideInputStream;
     };
 } // end namespace Deception
 #endif //DECEPTION_INTERPRETER_H

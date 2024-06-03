@@ -61,14 +61,39 @@ namespace Deception {
     }
     char
     Interpreter::next() {
-        return static_cast<char>(_currentStream->get());
+        if (_overrideInputStream.view().empty()) {
+            return static_cast<char>(_currentStream->get());
+        } else {
+            return static_cast<char>(_overrideInputStream.get());
+        }
     }
     bool
     Interpreter::stopProcessing() const noexcept {
-        return _currentStream->fail() || !_executing;
+        return _overrideInputStream.view().empty() && _currentStream->fail() || !_executing;
     }
     void
     Interpreter::terminate() noexcept {
         _executing = false;
     }
+    void
+    Interpreter::insertIntoInputStream(const std::string& value) noexcept {
+        _overrideInputStream << value;
+    }
+    void
+    Interpreter::insertIntoInputStream(char value) noexcept {
+        _overrideInputStream.put(value);
+    }
+
+    std::optional<Value>
+    Interpreter::popElement() noexcept {
+        if (_dataStack.empty())  {
+            return std::nullopt;
+        } else {
+            Value result = _dataStack.back();
+            _dataStack.pop_back();
+            return result;
+        }
+    }
+    bool
+    Interpreter::dataStackEmpty() const noexcept { return _dataStack.empty(); }
 } // end namespace Deception

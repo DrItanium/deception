@@ -37,7 +37,22 @@ void displayCurrentTableContents(Deception::Interpreter& interpreter, char) {
         std::cout << a.first << std::endl;
     }
 }
-int main(int argc, char** argv) {
+
+void
+displayTopItemOnDataStack(Deception::Interpreter& interpreter, char) {
+    if (auto value = interpreter.popElement(); !value) {
+        std::cout << "stack empty!" << std::endl;
+    } else {
+        if (auto internalValue = *value; internalValue) {
+            std::visit( [](auto&& value) { std::cout << value << std::endl; },  *internalValue);
+        } else {
+            std::cout << "null" << std::endl;
+        }
+    }
+}
+
+int
+main(int argc, char** argv) {
     std::stringstream builder;
     Deception::Interpreter theInterpreter{
             {
@@ -45,12 +60,10 @@ int main(int argc, char** argv) {
                     {"read string",
                      {
                              {{'\n', [](auto& i, char) { i.restore(); }}},
-                             [&builder](auto& i) {
-                                 builder.str("");
-                                 },
+                             [&builder](auto& i) { builder.str(""); },
                              [&builder](auto& i) {
                                  auto str = builder.str();
-                                 std::cout << "You entered " << str << std::endl;
+                                 i.pushElement(str);
                              },
                              [&builder](auto& i, char c) { builder.put(c); }
                      }
@@ -60,6 +73,7 @@ int main(int argc, char** argv) {
                              { Deception::Opcodes::Ascii::EOT, [](auto& interpreter, char) { interpreter.terminate(); } },
                              { '#', [](Deception::Interpreter& interpreter, char) {interpreter.use("single line comment"); } },
                              { '!', [](auto& interpreter, char) { interpreter.use("read string"); }},
+                             { '.', displayTopItemOnDataStack },
                              { '?', displayCurrentTableContents },
                      }
                     }
