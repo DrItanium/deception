@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef DECEPTION_INTERPRETER_H
 #define DECEPTION_INTERPRETER_H
 #include <istream>
+#include <core/Value.h>
 #include <core/Table.h>
 #include <core/Conclave.h>
 namespace Deception {
@@ -50,7 +51,22 @@ namespace Deception {
         auto operator[](const Conclave::BackingStore::key_type& index) noexcept { return _tables[index]; }
         auto operator[](Conclave::BackingStore::key_type&& index) noexcept { return _tables[index]; }
         void terminate() noexcept;
+        std::optional<Value> popElement() noexcept {
+           if (_dataStack.empty())  {
+               return std::nullopt;
+           } else {
+               Value result = _dataStack.top();
+               _dataStack.pop();
+               return result;
+           }
+        }
+        template<typename T>
+        void pushElement(T value) noexcept {
+            _dataStack.push(value);
+        }
+        bool dataStackEmpty() const noexcept { return _dataStack.empty(); }
     private:
+        std::stack<Value> _dataStack;
         std::stack<Table::SharedPtr> _executionStack;
         Table::SharedPtr _current = nullptr;
         Conclave _tables;
