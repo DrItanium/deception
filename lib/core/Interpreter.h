@@ -47,10 +47,6 @@ namespace Deception {
         char next();
         bool stopProcessing() const noexcept;
         [[nodiscard]] TableReference getCurrentTable() noexcept { return _current; }
-        template<typename ... Ts>
-        TableReference newTable(Ts&& ... args) noexcept {
-            return _tables.newTable(args...);
-        }
         auto operator[](const Conclave::BackingStore::key_type& index) noexcept { return _tables[index]; }
         auto operator[](Conclave::BackingStore::key_type&& index) noexcept { return _tables[index]; }
         void terminate() noexcept;

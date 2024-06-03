@@ -57,15 +57,6 @@ namespace Deception {
                 return nullptr;
             }
         }
-        template<typename ... Ts>
-        TableReference newTable(Ts&&... args) noexcept {
-            auto result = _backingStore.emplace_back(args...);
-            if (result->second)  {
-                return *(result->first);
-            } else {
-                return nullptr;
-            }
-        }
     private:
         BackingStore _backingStore;
     };
