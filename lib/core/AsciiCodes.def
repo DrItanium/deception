@@ -75,16 +75,16 @@ DeclareControlCode(ST, 0x9c)
 DeclareControlCode(OSC, 0x9d)
 DeclareControlCode(PM, 0x9e)
 DeclareControlCode(APC, 0x9f)
-// ANPA-1312 codes, all aliases
 StartGroup(ANPA1312)
-DeclareAlias(Formatting, TAB) // formatting
-DeclareAlias(EndOfInstruction, VT) // end of instruction
-DeclareAlias(StartOfInstruction, FF) // start of instruction
-DeclareAlias(QuadLeft, CR) // quad left
-DeclareAlias(UpperRail, SO) // upper rail
-DeclareAlias(LowerRail, SI) // lower rail
-DeclareAlias(KillWord, CAN) // kill word
-DeclareAlias(SuperShift, FS) // Super shift
-DeclareAlias(QuadCenter, GS) // Terminates a line, indicating that it should be centered
-DeclareAlias(QuadRight, RS) // Terminates a line, indicating that it should be centered
+DeclareAlias(FO, TAB) // formatting
+DeclareAlias(ECD, VT) // end of instruction
+DeclareAlias(SCD, FF) // start of instruction
+DeclareAlias(QL, CR) // quad left
+DeclareAlias(UR, SO) // upper rail
+DeclareAlias(LR, SI) // lower rail
+DeclareAlias(KW, CAN) // kill word
+DeclareAlias(SS, FS) // Super shift
+DeclareAlias(QC, GS) // Terminates a line, indicating that it should be centered
+DeclareAlias(QR, RS) // Terminates a line, indicating that it should be centered
+DeclareAlias(JY, US) // justify
 EndGroup(ANPA1312)
