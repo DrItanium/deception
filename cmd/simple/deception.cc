@@ -25,6 +25,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <iostream>
 #include <optional>
+#include <sstream>
 #include <core/Interpreter.h>
 #include <core/Codes.h>
 
@@ -37,13 +38,28 @@ void displayCurrentTableContents(Deception::Interpreter& interpreter, char) {
     }
 }
 int main(int argc, char** argv) {
+    std::stringstream builder;
     Deception::Interpreter theInterpreter{
             {
                     {"single line comment", { {'\n', [](Deception::Interpreter& interpreter, char) { interpreter.restore(); }} } },
+                    {"read string",
+                     {
+                             {{'\n', [](auto& i, char) { i.restore(); }}},
+                             [&builder](auto& i) {
+                                 builder.str("");
+                                 },
+                             [&builder](auto& i) {
+                                 auto str = builder.str();
+                                 std::cout << "You entered " << str << std::endl;
+                             },
+                             [&builder](auto& i, char c) { builder.put(c); }
+                     }
+                     },
                     {"core",
                      {
                              { Deception::Opcodes::Ascii::EOT, [](auto& interpreter, char) { interpreter.terminate(); } },
                              { '#', [](Deception::Interpreter& interpreter, char) {interpreter.use("single line comment"); } },
+                             { '!', [](auto& interpreter, char) { interpreter.use("read string"); }},
                              { '?', displayCurrentTableContents },
                      }
                     }

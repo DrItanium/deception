@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <memory>
 #include <stack>
 #include <string>
+#include <iostream>
 namespace Deception {
     template<typename Interpreter>
     class Table {
@@ -41,12 +42,11 @@ namespace Deception {
         using SharedPtr = std::shared_ptr<Table>;
         using InitializerList = std::initializer_list<typename DispatchTable::value_type>;
     private:
-        static void doNothing(Interpreter&, char) { }
-        static void doNothing(Interpreter&) {}
+        static void fallbackNothing(Interpreter&, char) { }
+        static void emptyEnterExitFunction(Interpreter&) {}
     public:
         Table() = default;
-        Table(InitializerList items, TableEnterFunction onEnter, TableExitFunction onLeave, ExecutionBody defaultState) : _table(items), _onEnter(onEnter), _onLeave(onLeave), _fallback(defaultState) { }
-        Table(InitializerList items) : _table(items) { }
+        Table(InitializerList items, TableEnterFunction onEnter = emptyEnterExitFunction, TableExitFunction onLeave = emptyEnterExitFunction, ExecutionBody defaultState = fallbackNothing) : _table(items), _onEnter(onEnter), _onLeave(onLeave), _fallback(defaultState) { }
         Table(const Table& other) = default;
         Table(Table&& other) = default;
         virtual ~Table() = default;
@@ -66,9 +66,9 @@ namespace Deception {
             if (auto result = find(c); result != end()) {
                 if (result->second) {
                     result->second(i, c);
-                } else {
-                   _fallback(i, c);
                 }
+            } else {
+                _fallback(i, c);
             }
         }
         void operator()(char c, Interpreter& i) noexcept { run(c, i); }
@@ -80,9 +80,9 @@ namespace Deception {
         }
     private:
         DispatchTable _table;
-        TableEnterFunction _onEnter = [](auto& i) { doNothing(i); };
-        TableEnterFunction _onLeave = [](auto& i) { doNothing(i); };
-        ExecutionBody _fallback = [](auto& i, char c) { doNothing(i, c); };
+        TableEnterFunction _onEnter = emptyEnterExitFunction;
+        TableEnterFunction _onLeave = emptyEnterExitFunction;
+        ExecutionBody _fallback = fallbackNothing;
     };
 } // end namespace Deception
 
