@@ -79,7 +79,6 @@ main(int argc, char** argv) {
                              { '#', [](Deception::Interpreter& interpreter, char) {interpreter.use("single line comment"); } },
                              { '!', [](auto& interpreter, char) { interpreter.use("read line"); }},
                              { Deception::Opcodes::TopLevelCodes::StartMakeString, [](auto& interpreter, char) { interpreter.use("read string"); } },
-
                              { '.', displayTopItemOnDataStack },
                              { '?', displayCurrentTableContents },
                      }
