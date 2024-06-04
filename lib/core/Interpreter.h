@@ -53,8 +53,8 @@ namespace Deception {
         using StreamStack = std::list<StreamType>;
         using StreamResult = std::optional<char>;
         Interpreter() = default;
-        Interpreter(std::initializer_list<ListEntry> tables, std::initializer_list<StreamType> startingStreamEntries, char terminationCharacter = EOF);
-        Interpreter(std::initializer_list<ListEntry> tables, char terminationCharacter = EOF);
+        Interpreter(std::initializer_list<ListEntry> tables, std::initializer_list<StreamType> startingStreamEntries);
+        Interpreter(std::initializer_list<ListEntry> tables);
         void use(const std::string& name);
         void use(TableReference ptr);
         void useFromStack();
@@ -85,6 +85,7 @@ namespace Deception {
             _inputStreams.emplace_back(stream);
         }
         void useInputStream(const std::string& stream);
+        void useInputStream(char c);
         void restoreInputStream();
         void clearOutputStream() {
             _currentOutputStream.str("");
@@ -105,7 +106,6 @@ namespace Deception {
         Conclave _tables;
         bool _executing = true;
         StreamStack _inputStreams;
-        char _terminationCharacter = EOF;
         std::stringstream _currentOutputStream;
     private:
         static inline StreamType noStream{ ObservedInputStream (nullptr) };

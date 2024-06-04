@@ -44,7 +44,7 @@ main(int argc, char** argv) {
                     GenericTable {
                             "core", {
                                     { Deception::Opcodes::Ascii::EOT, [](auto& interpreter, char) { interpreter.terminate(); } },
-                                    { 'q', [](auto& interpreter, char) { interpreter.terminate(); } }, // quit the interpreter
+                                    { 'q', [](auto& interpreter, char) { interpreter.useInputStream(Deception::Opcodes::Ascii::EOT); } },
                                     { '#', [](Deception::Interpreter& interpreter, char) {interpreter.use("single line comment"); } },
                                     { '!', [](auto& interpreter, char) { interpreter.use("read line"); }},
                                     { Deception::Opcodes::TopLevelCodes::StartMakeString, [](auto& interpreter, char) { interpreter.use("read string"); } },

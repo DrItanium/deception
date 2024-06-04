@@ -25,8 +25,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <core/Interpreter.h>
 #include <iostream>
 namespace Deception {
-    Interpreter::Interpreter(std::initializer_list<Conclave::InputEntry> tables, std::initializer_list<StreamType> streamStack, char term) : _tables(tables), _inputStreams(streamStack), _terminationCharacter(term) { }
-    Interpreter::Interpreter(std::initializer_list<Conclave::InputEntry> tables, char term) : Interpreter(tables, {std::experimental::make_observer<std::istream>(&std::cin)}, term) { }
+    Interpreter::Interpreter(std::initializer_list<Conclave::InputEntry> tables, std::initializer_list<StreamType> streamStack) : _tables(tables), _inputStreams(streamStack) { }
+    Interpreter::Interpreter(std::initializer_list<Conclave::InputEntry> tables) : Interpreter(tables, {std::experimental::make_observer<std::istream>(&std::cin)}) { }
 
     void
     Interpreter::use(const std::string& name) {
@@ -116,6 +116,10 @@ namespace Deception {
     void
     Interpreter::useInputStream(const std::string& stream) {
         useInputStream(std::make_shared<std::stringstream>(stream));
+    }
+    void
+    Interpreter::useInputStream(char c) {
+        useInputStream(std::string(1, c));
     }
     void
     Interpreter::useFromStack() {
