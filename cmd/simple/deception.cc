@@ -39,6 +39,7 @@ main(int argc, char** argv) {
     Deception::Interpreter theInterpreter{
             {
                     CustomTable { "single line comment", std::make_shared<Deception::DropCharactersUntil<Deception::Interpreter>>('\n') },
+                    CustomTable { "multi line comment", std::make_shared<Deception::DropCharactersUntil<Deception::Interpreter>>(')')},
                     CustomTable { "read string", std::make_shared<StringConstructionTable<Deception::Interpreter>>(Deception::Opcodes::TopLevelCodes::EndMakeString) },
                     CustomTable { "read line", std::make_shared<StringConstructionTable<Deception::Interpreter>>('\n') },
                     GenericTable {
@@ -51,6 +52,7 @@ main(int argc, char** argv) {
                                     { Deception::Opcodes::TopLevelCodes::SwitchToTableFromStack, [](auto& interpreter, char) { interpreter.useFromStack(); } },
                                     { '.', Deception::displayTopItemOnDataStack },
                                     { '?', Deception::displayCurrentTableContents },
+                                    { '(', [](auto& interpreter, char) { interpreter.use("multi line comment"); }},
                             }
                     }
             }
