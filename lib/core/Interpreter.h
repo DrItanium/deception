@@ -110,5 +110,7 @@ namespace Deception {
     private:
         static inline StreamType noStream{ ObservedInputStream (nullptr) };
     };
+    void displayCurrentTableContents(Deception::Interpreter& interpreter, char);
+    void displayTopItemOnDataStack(Deception::Interpreter& interpreter, char);
 } // end namespace Deception
 #endif //DECEPTION_INTERPRETER_H

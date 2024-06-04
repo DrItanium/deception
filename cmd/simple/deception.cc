@@ -27,35 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <core/Interpreter.h>
 #include <core/Codes.h>
 
-// each action table is different so there is no header
-
 // Each table is made up of 256 entries, if they are not valid
-void displayCurrentTableContents(Deception::Interpreter& interpreter, char) {
-    auto theTable = interpreter.getCurrentTable();
-    for (int i = 0; i < 0x100; ++i) {
-        char c = static_cast<char>(i);
-        if (auto result = theTable->lookup(c); result) {
-            std::cout << c << std::endl;
-        }
-    }
-}
-
-void
-displayTopItemOnDataStack(Deception::Interpreter& interpreter, char) {
-    if (interpreter.dataStackEmpty())  {
-        std::cout << "data stack empty!" << std::endl;
-    } else {
-        std::cout << "top of stack" << std::endl;
-        for (auto i = interpreter.dataStackReverseBegin(); i != interpreter.dataStackReverseEnd(); ++i) {
-            if (auto internalValue = *i; internalValue) {
-                std::visit([](auto&& value) { std::cout << "- " << value << std::endl; }, *internalValue);
-            } else {
-                std::cout << "- null" << std::endl;
-            }
-        }
-        std::cout << "bottom of stack" << std::endl;
-    }
-}
 using GenericTable = Deception::Interpreter::Conclave::GenericInputEntry;
 using CustomTable = Deception::Interpreter::Conclave::CustomInputEntry;
 
@@ -77,8 +49,8 @@ main(int argc, char** argv) {
                                     { '!', [](auto& interpreter, char) { interpreter.use("read line"); }},
                                     { Deception::Opcodes::TopLevelCodes::StartMakeString, [](auto& interpreter, char) { interpreter.use("read string"); } },
                                     { Deception::Opcodes::TopLevelCodes::SwitchToTableFromStack, [](auto& interpreter, char) { interpreter.useFromStack(); } },
-                                    { '.', displayTopItemOnDataStack },
-                                    { '?', displayCurrentTableContents },
+                                    { '.', Deception::displayTopItemOnDataStack },
+                                    { '?', Deception::displayCurrentTableContents },
                             }
                     }
             }
