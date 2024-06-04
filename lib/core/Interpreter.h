@@ -66,7 +66,7 @@ namespace Deception {
         auto operator[](const Conclave::BackingStore::key_type& index) noexcept { return _tables[index]; }
         auto operator[](Conclave::BackingStore::key_type&& index) noexcept { return _tables[index]; }
         void terminate() noexcept;
-        std::optional<Value> popElement() noexcept;
+        Value popElement() noexcept;
         [[nodiscard]] bool dataStackEmpty() const noexcept;
         template<typename T>
         void pushElement(T value) noexcept {

@@ -54,8 +54,8 @@ namespace Deception {
         do {
             if (auto current = next(); stopProcessing()) {
                 break;
-            } else {
-                (*getCurrentTable())(current, *this);
+            } else if (current) {
+                (*getCurrentTable())(*current, *this);
             }
         } while (true);
     }
@@ -65,7 +65,7 @@ namespace Deception {
         _executing = false;
     }
 
-    std::optional<Value>
+    Value
     Interpreter::popElement() noexcept {
         if (_dataStack.empty())  {
             return std::nullopt;
@@ -119,6 +119,16 @@ namespace Deception {
     }
     void
     Interpreter::useFromStack() {
-        if ()
+        if (auto top = popElement(); top) {
+            if (std::holds_alternative<std::string>(*top)) {
+                use(std::get<std::string>(*top));
+                return;
+            } else {
+                std::cerr << "useFromStack: Top element not a string!" << std::endl;
+            }
+        } else {
+            std::cerr << "useFromStack: stack is empty!" << std::endl;
+        }
+        //  report an error
     }
 } // end namespace Deception
