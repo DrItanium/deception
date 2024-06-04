@@ -58,30 +58,7 @@ using GenericTable = Deception::Interpreter::Conclave::GenericInputEntry;
 using CustomTable = Deception::Interpreter::Conclave::CustomInputEntry;
 
 template<typename Interpreter>
-class StringConstructionTable : public Deception::Table<Interpreter> {
-    using Parent = Deception::Table<Interpreter>;
-    using Self = StringConstructionTable<Interpreter>;
-
-public:
-    explicit StringConstructionTable(char terminatorSymbol) : Parent( { {terminatorSymbol, [](auto& i, char) { i.restore(); } } } ) { }
-
-    ~StringConstructionTable() override = default;
-
-    void
-    enterTable(Interpreter& interpreter) override {
-        interpreter.clearOutputStream();
-    }
-
-    void
-    leaveTable(Interpreter& interpreter) override {
-        interpreter.moveOutputToStack();
-    }
-
-    void
-    doFallback(Interpreter& interpreter, char c) override {
-        interpreter.putIntoOutputStream(c);
-    }
-};
+using StringConstructionTable = Deception::StringConstructionTable<Interpreter>;
 
 int
 main(int argc, char** argv) {

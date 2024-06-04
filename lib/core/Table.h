@@ -87,6 +87,15 @@ namespace Deception {
         TableEnterFunction _onLeave = emptyEnterExitFunction;
         ExecutionBody _fallback = fallbackNothing;
     };
+    template<typename Interpreter>
+    struct StringConstructionTable : public Table<Interpreter> {
+        using Parent = Deception::Table<Interpreter>;
+        explicit StringConstructionTable(char terminatorSymbol) : Parent( { {terminatorSymbol, [](auto& i, char) { i.restore(); } } } ) { }
+        ~StringConstructionTable() override = default;
+        void enterTable(Interpreter& interpreter) override { interpreter.clearOutputStream(); }
+        void leaveTable(Interpreter& interpreter) override { interpreter.moveOutputToStack(); }
+        void doFallback(Interpreter& interpreter, char c) override { interpreter.putIntoOutputStream(c); }
+    };
 } // end namespace Deception
 
 #endif //DECEPTION_TABLE_H
