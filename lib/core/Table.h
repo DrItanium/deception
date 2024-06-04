@@ -31,15 +31,38 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stack>
 #include <string>
 #include <iostream>
+#include <optional>
 namespace Deception {
     template<typename Interpreter>
-    class Table {
-    public:
+    struct GenericTable {
         using ExecutionBody = std::function<void(Interpreter& self, char character)>;
+        using LookupResult = std::optional<ExecutionBody>;
+        using SharedPtr = std::shared_ptr<GenericTable<Interpreter>>;
+        GenericTable() = default;
+        virtual ~GenericTable() = default;
+        virtual LookupResult lookup(char c) = 0;
+        virtual void run(char c, Interpreter& interpreter) {
+            if (auto result = lookup(c); result) {
+                (*result)(interpreter, c);
+            } else {
+                defaultImplementation(interpreter, c);
+            }
+        }
+        void operator()(char c, Interpreter& i) noexcept { run(c, i); }
+        virtual void enterTable(Interpreter&) { }
+        virtual void leaveTable(Interpreter&) { }
+        virtual void defaultImplementation(Interpreter&, char) { }
+    };
+    template<typename Interpreter>
+    class Table : public GenericTable<Interpreter> {
+    public:
+        using Parent = GenericTable<Interpreter>;
+        using ExecutionBody = Parent::ExecutionBody;
+        using LookupResult = Parent::LookupResult;
         using TableEnterFunction = std::function<void(Interpreter&)>;
         using TableExitFunction = std::function<void(Interpreter&)>;
         using DispatchTable = std::map<char, ExecutionBody>;
-        using SharedPtr = std::shared_ptr<Table>;
+        using SharedPtr = std::shared_ptr<Table<Interpreter>>;
         using InitializerList = std::initializer_list<typename DispatchTable::value_type>;
     private:
         static void fallbackNothing(Interpreter&, char) { }
@@ -56,29 +79,25 @@ namespace Deception {
         decltype(auto) begin() const noexcept { return _table.begin(); }
         decltype(auto) find(char value) noexcept { return _table.find(value); }
         decltype(auto) find(char value) const noexcept { return _table.find(value); }
+        LookupResult lookup(char c) override {
+            if (auto result = find(c);  result != end()) {
+                return result->second;
+            } else {
+                return std::nullopt;
+            }
+        }
+
         template<typename ... Ts>
         decltype(auto) emplace(Ts&&... args) noexcept {
             return _table.emplace(args...);
         }
-        decltype(auto) operator[](char&& value) noexcept { return _table.operator[](value); }
-        decltype(auto) operator[](const char&& value) noexcept { return _table.operator[](value); }
-        virtual void run(char c, Interpreter& i) {
-            if (auto result = find(c); result != end()) {
-                if (result->second) {
-                    result->second(i, c);
-                }
-            } else {
-                doFallback(i, c);
-            }
-        }
-        void operator()(char c, Interpreter& i) noexcept { run(c, i); }
-        virtual void enterTable(Interpreter& interpreter) {
+        void enterTable(Interpreter& interpreter) override {
             _onEnter(interpreter);
         }
-        virtual void leaveTable(Interpreter& interpreter) {
+        void leaveTable(Interpreter& interpreter) override {
             _onLeave(interpreter);
         }
-        virtual void doFallback(Interpreter& interpreter, char c) {
+        void defaultImplementation(Interpreter& interpreter, char c) override {
             _fallback(interpreter, c);
         }
     private:
@@ -88,13 +107,25 @@ namespace Deception {
         ExecutionBody _fallback = fallbackNothing;
     };
     template<typename Interpreter>
-    struct StringConstructionTable : public Table<Interpreter> {
+    struct StringConstructionTable : public GenericTable<Interpreter> {
         using Parent = Deception::Table<Interpreter>;
-        explicit StringConstructionTable(char terminatorSymbol) : Parent( { {terminatorSymbol, [](auto& i, char) { i.restore(); } } } ) { }
+        using LookupResult = Parent::LookupResult;
+        explicit StringConstructionTable(char terminatorSymbol) : _terminatorChar(terminatorSymbol) { }
         ~StringConstructionTable() override = default;
         void enterTable(Interpreter& interpreter) override { interpreter.clearOutputStream(); }
         void leaveTable(Interpreter& interpreter) override { interpreter.moveOutputToStack(); }
-        void doFallback(Interpreter& interpreter, char c) override { interpreter.putIntoOutputStream(c); }
+        void defaultImplementation(Interpreter& interpreter, char c) override { interpreter.putIntoOutputStream(c); }
+
+        LookupResult lookup(char c) override {
+            if (c == _terminatorChar)  {
+                return [](Interpreter& interpreter, char) { interpreter.restore(); };
+            } else {
+                return std::nullopt;
+            }
+        }
+
+    private:
+        char _terminatorChar;
     };
 } // end namespace Deception
 

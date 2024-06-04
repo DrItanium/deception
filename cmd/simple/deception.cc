@@ -33,8 +33,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Each table is made up of 256 entries, if they are not valid
 void displayCurrentTableContents(Deception::Interpreter& interpreter, char) {
-    for (const auto& a : *(interpreter.getCurrentTable())) {
-        std::cout << a.first << std::endl;
+    auto theTable = interpreter.getCurrentTable();
+    for (int i = 0; i < 0x100; ++i) {
+        char c = static_cast<char>(i);
+        if (auto result = theTable->lookup(c); result) {
+            std::cout << c << std::endl;
+        }
     }
 }
 

@@ -34,12 +34,13 @@ namespace Deception {
     template<typename Interpreter>
     class Conclave {
     public:
+        using GenericTable_t = GenericTable<Interpreter>;
         using Table_t = Table<Interpreter>;
         using TableReference = Table_t::SharedPtr;
-        using BackingStore = std::map<std::string, TableReference>;
-        using Entry = BackingStore::value_type;
-        using GenericInputEntry = std::pair<typename BackingStore::key_type, typename BackingStore::mapped_type::element_type>;
-        using CustomInputEntry = std::pair<typename BackingStore::key_type, typename BackingStore::mapped_type>;
+        using GenericTableReference = GenericTable_t::SharedPtr;
+        using BackingStore = std::map<std::string, GenericTableReference>;
+        using GenericInputEntry = std::pair<typename BackingStore::key_type, Table_t>;
+        using CustomInputEntry = std::pair<typename BackingStore::key_type, GenericTableReference>;
         using InputEntry = std::variant<GenericInputEntry, CustomInputEntry>;
         Conclave() = default;
         Conclave(std::initializer_list<InputEntry> list) {
@@ -59,7 +60,7 @@ namespace Deception {
         auto size() const noexcept { return _backingStore.size(); }
         auto operator[](const BackingStore::key_type& index) noexcept { return _backingStore[index]; }
         auto operator[](BackingStore::key_type&& index) noexcept { return _backingStore[index]; }
-        TableReference find(const BackingStore::key_type&  name)  {
+        GenericTableReference find(const BackingStore::key_type&  name)  {
             if (auto result = _backingStore.find(name); result != _backingStore.end()) {
                 return result->second;
             } else {

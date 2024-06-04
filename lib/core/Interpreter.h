@@ -41,10 +41,10 @@ namespace Deception {
     public:
         using Conclave = Deception::Conclave<Interpreter>;
         using Table = Deception::Table<Interpreter>;
-        using TableReference = Conclave::TableReference;
+        using TableReference = Conclave::GenericTableReference;
         using ListEntry = typename Conclave::InputEntry;
         using DataStack = std::list<Value>;
-        using ExecutionStack = std::stack<Table::SharedPtr>;
+        using ExecutionStack = std::stack<TableReference>;
         using UniqueInputStream = std::unique_ptr<std::istream>;
         using ObservedInputStream = std::experimental::observer_ptr<std::istream>;
         using SharedInputStream = std::shared_ptr<std::istream>;
