@@ -353,4 +353,8 @@ DeclareAlias(QR, Ascii::RS) // Terminates a line, indicating that it should be c
 DeclareAlias(JY, Ascii::US) // justify
 EndGroup(ANPA1312)
 
-
+StartGroup(TopLevelCodes)
+DeclareAlias(SwitchToTableFromStack, 0xFF)
+DeclareAlias(StartMakeString, Ascii::SOS)
+DeclareAlias(EndMakeString, Ascii::ST)
+EndGroup(TopLevelCodes)

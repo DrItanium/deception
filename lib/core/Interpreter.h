@@ -31,6 +31,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <istream>
 #include <sstream>
 #include <list>
+#include <memory>
+#include <experimental/memory>
 #include <core/Value.h>
 #include <core/Table.h>
 #include <core/Conclave.h>
@@ -43,20 +45,27 @@ namespace Deception {
         using ListEntry = typename Conclave::InputEntry;
         using DataStack = std::list<Value>;
         using ExecutionStack = std::stack<Table::SharedPtr>;
+        using UniqueInputStream = std::unique_ptr<std::istream>;
+        using ObservedInputStream = std::experimental::observer_ptr<std::istream>;
+        using SharedInputStream = std::shared_ptr<std::istream>;
+        using StreamType = std::variant<ObservedInputStream,
+                                        SharedInputStream>;
+        using StreamStack = std::list<StreamType>;
+        using StreamResult = std::optional<char>;
         Interpreter() = default;
-        Interpreter(std::initializer_list<ListEntry> tables);
+        Interpreter(std::initializer_list<ListEntry> tables, std::initializer_list<StreamType> startingStreamEntries, char terminationCharacter = EOF);
+        Interpreter(std::initializer_list<ListEntry> tables, char terminationCharacter = EOF);
         void use(const std::string& name);
         void use(TableReference ptr);
+        void useFromStack();
         void restore();
         void run();
-        char next();
+        StreamResult next();
         bool stopProcessing() const noexcept;
-        [[nodiscard]] TableReference getCurrentTable() noexcept { return _current; }
+        [[nodiscard]] TableReference getCurrentTable() noexcept { return _executionStack.empty() ? nullptr : _executionStack.top(); }
         auto operator[](const Conclave::BackingStore::key_type& index) noexcept { return _tables[index]; }
         auto operator[](Conclave::BackingStore::key_type&& index) noexcept { return _tables[index]; }
         void terminate() noexcept;
-        void insertIntoInputStream(const std::string& value) noexcept;
-        void insertIntoInputStream(char value) noexcept;
         std::optional<Value> popElement() noexcept;
         [[nodiscard]] bool dataStackEmpty() const noexcept;
         template<typename T>
@@ -68,14 +77,38 @@ namespace Deception {
         auto dataStackReverseBegin() const noexcept { return _dataStack.crbegin(); }
         auto dataStackReverseEnd() const noexcept { return _dataStack.crend(); }
         [[nodiscard]] auto dataStackSize() const noexcept { return _dataStack.size(); }
+        [[nodiscard]] bool currentStreamValid() const noexcept;
+        StreamType& getCurrentStream() noexcept;
+        const StreamType& getCurrentStream() const noexcept;
+        template<typename T>
+        void useInputStream(T stream) {
+            _inputStreams.emplace_back(stream);
+        }
+        void useInputStream(const std::string& stream);
+        void restoreInputStream();
+        void clearOutputStream() {
+            _currentOutputStream.str("");
+        }
+        void putIntoOutputStream(const std::string& str) {
+            _currentOutputStream << str;
+        }
+        void putIntoOutputStream(char c) {
+            _currentOutputStream.put(c);
+        }
+        void moveOutputToStack() {
+            std::string tmp = _currentOutputStream.str();
+            pushElement(tmp);
+        }
     private:
         DataStack _dataStack;
         ExecutionStack _executionStack;
-        Table::SharedPtr _current = nullptr;
         Conclave _tables;
-        std::istream* _currentStream = nullptr;
         bool _executing = true;
-        std::stringstream _overrideInputStream;
+        StreamStack _inputStreams;
+        char _terminationCharacter = EOF;
+        std::stringstream _currentOutputStream;
+    private:
+        static inline StreamType noStream{ ObservedInputStream (nullptr) };
     };
 } // end namespace Deception
 #endif //DECEPTION_INTERPRETER_H

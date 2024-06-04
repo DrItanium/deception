@@ -25,27 +25,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <core/Interpreter.h>
 #include <iostream>
 namespace Deception {
-    Interpreter::Interpreter(std::initializer_list<Conclave::InputEntry> tables) : _tables(tables), _currentStream(&std::cin) { }
+    Interpreter::Interpreter(std::initializer_list<Conclave::InputEntry> tables, std::initializer_list<StreamType> streamStack, char term) : _tables(tables), _inputStreams(streamStack), _terminationCharacter(term) { }
+    Interpreter::Interpreter(std::initializer_list<Conclave::InputEntry> tables, char term) : Interpreter(tables, {std::experimental::make_observer<std::istream>(&std::cin)}, term) { }
+
     void
     Interpreter::use(const std::string& name) {
         use(_tables.find(name));
     }
     void
     Interpreter::use(TableReference ptr) {
-        if (_current) {
-            _current->leaveTable(*this);
-            _executionStack.push(_current);
+        if (getCurrentTable()) {
+            getCurrentTable()->leaveTable(*this);
         }
         if (ptr) {
-            _current = ptr;
-            _current->enterTable(*this);
+            _executionStack.push(ptr);
+            getCurrentTable()->enterTable(*this);
         }
     }
     void
     Interpreter::restore() {
         if (!_executionStack.empty()) {
-            _current->leaveTable(*this);
-            _current = _executionStack.top();
+            getCurrentTable()->leaveTable(*this);
             _executionStack.pop();
         }
     }
@@ -55,33 +55,14 @@ namespace Deception {
             if (auto current = next(); stopProcessing()) {
                 break;
             } else {
-                (*_current)(current, *this);
+                (*getCurrentTable())(current, *this);
             }
         } while (true);
     }
-    char
-    Interpreter::next() {
-        if (_overrideInputStream.view().empty()) {
-            return static_cast<char>(_currentStream->get());
-        } else {
-            return static_cast<char>(_overrideInputStream.get());
-        }
-    }
-    bool
-    Interpreter::stopProcessing() const noexcept {
-        return _overrideInputStream.view().empty() && _currentStream->fail() || !_executing;
-    }
+
     void
     Interpreter::terminate() noexcept {
         _executing = false;
-    }
-    void
-    Interpreter::insertIntoInputStream(const std::string& value) noexcept {
-        _overrideInputStream << value;
-    }
-    void
-    Interpreter::insertIntoInputStream(char value) noexcept {
-        _overrideInputStream.put(value);
     }
 
     std::optional<Value>
@@ -96,4 +77,48 @@ namespace Deception {
     }
     bool
     Interpreter::dataStackEmpty() const noexcept { return _dataStack.empty(); }
+
+    bool
+    Interpreter::currentStreamValid() const noexcept {
+        return !_inputStreams.empty() && std::visit([](auto&& stream) { return stream.operator bool(); }, getCurrentStream());
+    }
+    const Interpreter::StreamType&
+    Interpreter::getCurrentStream() const noexcept {
+        return _inputStreams.back();
+    }
+    Interpreter::StreamType&
+    Interpreter::getCurrentStream() noexcept {
+        return _inputStreams.back();
+    }
+    Interpreter::StreamResult
+    Interpreter::next() {
+        if (!currentStreamValid()) {
+            // see if we can go to the next entry in the stream set
+            if (_inputStreams.empty()) {
+                // we have nothing left to process so just mark the interpreter as done and terminate, return the termination character as well
+                terminate();
+                return std::nullopt;
+            }
+            // we are done so go back to the previous one
+            restoreInputStream();
+        }
+        return std::visit([](auto&& stream) -> char { return static_cast<char>(stream->get()); }, getCurrentStream());
+    }
+
+    bool
+    Interpreter::stopProcessing() const noexcept {
+        return !_executing || _inputStreams.empty();
+    }
+    void
+    Interpreter::restoreInputStream() {
+        _inputStreams.pop_back();
+    }
+    void
+    Interpreter::useInputStream(const std::string& stream) {
+        useInputStream(std::make_shared<std::stringstream>(stream));
+    }
+    void
+    Interpreter::useFromStack() {
+        if ()
+    }
 } // end namespace Deception
