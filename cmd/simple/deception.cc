@@ -74,7 +74,7 @@ main(int argc, char** argv) {
                     } },
                     {"core",
                      {
-                             { Deception::Opcodes::Ascii::EOT, [](auto& interpreter, char) { interpreter.terminate(); } },
+                             //{ Deception::Opcodes::Ascii::EOT, [](auto& interpreter, char) { interpreter.terminate(); } },
                              { 'q', [](auto& interpreter, char) { interpreter.terminate(); } }, // quit the interpreter
                              { '#', [](Deception::Interpreter& interpreter, char) {interpreter.use("single line comment"); } },
                              { '!', [](auto& interpreter, char) { interpreter.use("read line"); }},

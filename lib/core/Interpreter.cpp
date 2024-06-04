@@ -52,9 +52,9 @@ namespace Deception {
     void
     Interpreter::run() {
         do {
-            if (auto current = next(); stopProcessing()) {
+            if (auto current = next(); stopProcessing() || !current) {
                 break;
-            } else if (current) {
+            } else {
                 (*getCurrentTable())(*current, *this);
             }
         } while (true);
@@ -80,7 +80,7 @@ namespace Deception {
 
     bool
     Interpreter::currentStreamValid() const noexcept {
-        return !_inputStreams.empty() && std::visit([](auto&& stream) { return stream.operator bool(); }, getCurrentStream());
+        return !_inputStreams.empty() && std::visit([](auto&& stream) { return stream->operator bool(); }, getCurrentStream());
     }
     const Interpreter::StreamType&
     Interpreter::getCurrentStream() const noexcept {
@@ -107,7 +107,7 @@ namespace Deception {
 
     bool
     Interpreter::stopProcessing() const noexcept {
-        return !_executing || _inputStreams.empty();
+        return !_executing || _inputStreams.empty() || !currentStreamValid();
     }
     void
     Interpreter::restoreInputStream() {
