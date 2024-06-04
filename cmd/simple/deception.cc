@@ -83,7 +83,6 @@ public:
     }
 };
 
-
 int
 main(int argc, char** argv) {
     Deception::Interpreter theInterpreter{
@@ -102,6 +101,7 @@ main(int argc, char** argv) {
                                     { '#', [](Deception::Interpreter& interpreter, char) {interpreter.use("single line comment"); } },
                                     { '!', [](auto& interpreter, char) { interpreter.use("read line"); }},
                                     { Deception::Opcodes::TopLevelCodes::StartMakeString, [](auto& interpreter, char) { interpreter.use("read string"); } },
+                                    { Deception::Opcodes::TopLevelCodes::SwitchToTableFromStack, [](auto& interpreter, char) { interpreter.useFromStack(); } },
                                     { '.', displayTopItemOnDataStack },
                                     { '?', displayCurrentTableContents },
                             }
