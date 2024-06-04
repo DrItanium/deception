@@ -123,6 +123,7 @@ namespace Deception {
                 return std::nullopt;
             }
         }
+        [[nodiscard]] constexpr auto getTerminatorChar() const noexcept { return _terminatorChar; }
 
     private:
         char _terminatorChar;

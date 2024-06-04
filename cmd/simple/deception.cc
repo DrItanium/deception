@@ -24,8 +24,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <iostream>
-#include <optional>
-#include <sstream>
 #include <core/Interpreter.h>
 #include <core/Codes.h>
 
