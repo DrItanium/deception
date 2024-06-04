@@ -128,6 +128,24 @@ namespace Deception {
     private:
         char _terminatorChar;
     };
+    template<typename Interpreter>
+    struct DropCharactersUntil : public GenericTable<Interpreter> {
+        using Parent = GenericTable<Interpreter>;
+        explicit DropCharactersUntil(char until) : _terminatorChar(until) { }
+
+        Parent::LookupResult lookup(char c) override {
+            if (c == _terminatorChar) {
+                return [](Interpreter& i, char) {
+                    i.restore();
+                };
+            } else {
+                return std::nullopt;
+            }
+        }
+
+    private:
+        char _terminatorChar;
+    };
 } // end namespace Deception
 
 #endif //DECEPTION_TABLE_H

@@ -66,13 +66,9 @@ int
 main(int argc, char** argv) {
     Deception::Interpreter theInterpreter{
             {
-                    GenericTable {
-                            "single line comment", {
-                                {'\n', [](Deception::Interpreter& interpreter, char) { interpreter.restore(); } }
-                            }
-                    },
-                    CustomTable{ "read string", std::make_shared<StringConstructionTable<Deception::Interpreter>>(Deception::Opcodes::TopLevelCodes::EndMakeString) },
-                    CustomTable{ "read line", std::make_shared<StringConstructionTable<Deception::Interpreter>>('\n') },
+                    CustomTable { "single line comment", std::make_shared<Deception::DropCharactersUntil<Deception::Interpreter>>('\n') },
+                    CustomTable { "read string", std::make_shared<StringConstructionTable<Deception::Interpreter>>(Deception::Opcodes::TopLevelCodes::EndMakeString) },
+                    CustomTable { "read line", std::make_shared<StringConstructionTable<Deception::Interpreter>>('\n') },
                     GenericTable {
                             "core", {
                                     { Deception::Opcodes::Ascii::EOT, [](auto& interpreter, char) { interpreter.terminate(); } },
