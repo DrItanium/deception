@@ -38,11 +38,20 @@ namespace Deception {
         using TableReference = Table_t::SharedPtr;
         using BackingStore = std::map<std::string, TableReference>;
         using Entry = BackingStore::value_type;
-        using InputEntry = std::pair<typename BackingStore::key_type, typename BackingStore::mapped_type::element_type>;
+        using GenericInputEntry = std::pair<typename BackingStore::key_type, typename BackingStore::mapped_type::element_type>;
+        using CustomInputEntry = std::pair<typename BackingStore::key_type, typename BackingStore::mapped_type>;
+        using InputEntry = std::variant<GenericInputEntry, CustomInputEntry>;
         Conclave() = default;
         Conclave(std::initializer_list<InputEntry> list) {
             for (auto& a : list) {
-                _backingStore.emplace(a.first, std::make_shared<Table_t>(a.second));
+                std::visit([this](auto&& a) {
+                    using K = std::decay_t<decltype(a)>;
+                    if constexpr (std::is_same_v<K, GenericInputEntry>) {
+                        _backingStore.emplace(a.first, std::make_shared<Table_t>(a.second));
+                    } else {
+                        _backingStore.emplace(a.first, a.second);
+                    }
+                }, a);
             }
         }
         Conclave(const Conclave&) = default;

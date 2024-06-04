@@ -54,34 +54,57 @@ displayTopItemOnDataStack(Deception::Interpreter& interpreter, char) {
         std::cout << "bottom of stack" << std::endl;
     }
 }
+using GenericTable = Deception::Interpreter::Conclave::GenericInputEntry;
+using CustomTable = Deception::Interpreter::Conclave::CustomInputEntry;
+
+template<typename Interpreter>
+class StringConstructionTable : public Deception::Table<Interpreter> {
+    using Parent = Deception::Table<Interpreter>;
+    using Self = StringConstructionTable<Interpreter>;
+
+public:
+    explicit StringConstructionTable(char terminatorSymbol) : Parent( { {terminatorSymbol, [](auto& i, char) { i.restore(); } } } ) { }
+
+    ~StringConstructionTable() override = default;
+
+    void
+    enterTable(Interpreter& interpreter) override {
+        interpreter.clearOutputStream();
+    }
+
+    void
+    leaveTable(Interpreter& interpreter) override {
+        interpreter.moveOutputToStack();
+    }
+
+    void
+    doFallback(Interpreter& interpreter, char c) override {
+        interpreter.putIntoOutputStream(c);
+    }
+};
+
 
 int
 main(int argc, char** argv) {
     Deception::Interpreter theInterpreter{
             {
-                    {"single line comment", { {'\n', [](Deception::Interpreter& interpreter, char) { interpreter.restore(); }} } },
-                    {"read string", {
-                             {{Deception::Opcodes::TopLevelCodes::EndMakeString, [](auto& i, char) { i.restore(); }}},
-                             [](auto& i) { i.clearOutputStream(); },
-                             [](auto& i) { i.moveOutputToStack(); },
-                             [](auto& i, char c) { i.putIntoOutputStream(c); }
-                     } },
-                    {"read line", {
-                            {{'\n', [](auto& i, char) { i.restore(); }}},
-                            [](auto& i) { i.clearOutputStream(); },
-                            [](auto& i) { i.moveOutputToStack(); },
-                            [](auto& i, char c) { i.putIntoOutputStream(c); }
-                    } },
-                    {"core",
-                     {
-                             //{ Deception::Opcodes::Ascii::EOT, [](auto& interpreter, char) { interpreter.terminate(); } },
-                             { 'q', [](auto& interpreter, char) { interpreter.terminate(); } }, // quit the interpreter
-                             { '#', [](Deception::Interpreter& interpreter, char) {interpreter.use("single line comment"); } },
-                             { '!', [](auto& interpreter, char) { interpreter.use("read line"); }},
-                             { Deception::Opcodes::TopLevelCodes::StartMakeString, [](auto& interpreter, char) { interpreter.use("read string"); } },
-                             { '.', displayTopItemOnDataStack },
-                             { '?', displayCurrentTableContents },
-                     }
+                    GenericTable {
+                            "single line comment", {
+                                {'\n', [](Deception::Interpreter& interpreter, char) { interpreter.restore(); } }
+                            }
+                    },
+                    CustomTable{ "read string", std::make_shared<StringConstructionTable<Deception::Interpreter>>(Deception::Opcodes::TopLevelCodes::EndMakeString) },
+                    CustomTable{ "read line", std::make_shared<StringConstructionTable<Deception::Interpreter>>('\n') },
+                    GenericTable {
+                            "core", {
+                                    { Deception::Opcodes::Ascii::EOT, [](auto& interpreter, char) { interpreter.terminate(); } },
+                                    { 'q', [](auto& interpreter, char) { interpreter.terminate(); } }, // quit the interpreter
+                                    { '#', [](Deception::Interpreter& interpreter, char) {interpreter.use("single line comment"); } },
+                                    { '!', [](auto& interpreter, char) { interpreter.use("read line"); }},
+                                    { Deception::Opcodes::TopLevelCodes::StartMakeString, [](auto& interpreter, char) { interpreter.use("read string"); } },
+                                    { '.', displayTopItemOnDataStack },
+                                    { '?', displayCurrentTableContents },
+                            }
                     }
             }
     };
