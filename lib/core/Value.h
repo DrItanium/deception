@@ -38,12 +38,22 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <optional>
 #include <string>
 #include <cstdint>
+#include <istream>
+#include <memory>
+#include <functional>
+#include <experimental/memory>
+#include <list>
 
 namespace Deception {
     using Integer = int64_t;
     using Ordinal = uint64_t;
     using Character = char;
     using Boolean = bool;
+    using SharedInputStream = std::shared_ptr<std::istream>;
+    using ObservedInputStream = std::experimental::observer_ptr<std::istream>;
+    using InputStream = std::variant<SharedInputStream, ObservedInputStream>;
+    using InputStreamStack = std::list<InputStream>;
+    using StreamReadResult = std::optional<char>;
     /**
      * A given value that can be put into the stack as needed
      */

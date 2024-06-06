@@ -45,13 +45,9 @@ namespace Deception {
         using ListEntry = typename Conclave::InputEntry;
         using DataStack = std::list<Value>;
         using ExecutionStack = std::stack<TableReference>;
-        using UniqueInputStream = std::unique_ptr<std::istream>;
-        using ObservedInputStream = std::experimental::observer_ptr<std::istream>;
-        using SharedInputStream = std::shared_ptr<std::istream>;
-        using StreamType = std::variant<ObservedInputStream,
-                                        SharedInputStream>;
-        using StreamStack = std::list<StreamType>;
-        using StreamResult = std::optional<char>;
+        using StreamType = InputStream;
+        using StreamStack = InputStreamStack;
+        using StreamResult = StreamReadResult;
         Interpreter() = default;
         Interpreter(std::initializer_list<ListEntry> tables, std::initializer_list<StreamType> startingStreamEntries);
         Interpreter(std::initializer_list<ListEntry> tables);
