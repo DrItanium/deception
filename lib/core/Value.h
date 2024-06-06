@@ -47,6 +47,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace Deception {
     using Integer = int64_t;
     using Ordinal = uint64_t;
+    using Address = uint32_t;
     using Character = char;
     using Boolean = bool;
     using SharedInputStream = std::shared_ptr<std::istream>;

@@ -48,9 +48,8 @@ namespace Deception {
         using StreamType = InputStream;
         using StreamStack = InputStreamStack;
         using StreamResult = StreamReadResult;
-        Interpreter() = default;
-        Interpreter(std::initializer_list<ListEntry> tables, std::initializer_list<StreamType> startingStreamEntries);
-        Interpreter(std::initializer_list<ListEntry> tables);
+        Interpreter(std::initializer_list<ListEntry> tables, std::initializer_list<StreamType> startingStreamEntries, std::size_t capacity = (256 * 1024 * 1024));
+        Interpreter(std::initializer_list<ListEntry> tables, std::size_t capacity = (256*1024*1024));
         void use(const std::string& name);
         void use(TableReference ptr);
         void useFromStack();
@@ -103,6 +102,7 @@ namespace Deception {
         bool _executing = true;
         StreamStack _inputStreams;
         std::stringstream _currentOutputStream;
+        std::size_t _capacity;
     private:
         static inline StreamType noStream{ ObservedInputStream (nullptr) };
     };
