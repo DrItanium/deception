@@ -16,6 +16,8 @@ add_library(deception-core
         lib/core/Codes.cc
         lib/core/Codes.h
         lib/core/Value.h
+        lib/core/MemorySpace.cc
+        lib/core/MemorySpace.h
 )
 add_executable(deception-interpreter
 		cmd/simple/deception.cc
