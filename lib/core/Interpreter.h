@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <core/Value.h>
 #include <core/Table.h>
 #include <core/Conclave.h>
+#include <core/MemorySpace.h>
 namespace Deception {
     class Interpreter {
     public:
@@ -95,6 +96,7 @@ namespace Deception {
             std::string tmp = _currentOutputStream.str();
             pushElement(tmp);
         }
+        constexpr auto memoryCapacity() const noexcept { return _memory.size(); }
     private:
         DataStack _dataStack;
         ExecutionStack _executionStack;
@@ -102,7 +104,7 @@ namespace Deception {
         bool _executing = true;
         StreamStack _inputStreams;
         std::stringstream _currentOutputStream;
-        std::size_t _capacity;
+        MemorySpace _memory;
     private:
         static inline StreamType noStream{ ObservedInputStream (nullptr) };
     };

@@ -25,7 +25,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <core/Interpreter.h>
 #include <iostream>
 namespace Deception {
-    Interpreter::Interpreter(std::initializer_list<Conclave::InputEntry> tables, std::initializer_list<StreamType> streamStack, std::size_t capacity) : _tables(tables), _inputStreams(streamStack), _capacity(capacity) { }
+    Interpreter::Interpreter(std::initializer_list<Conclave::InputEntry> tables, std::initializer_list<StreamType> streamStack, std::size_t capacity) : _tables(tables), _inputStreams(streamStack), _memory(capacity) { }
     Interpreter::Interpreter(std::initializer_list<Conclave::InputEntry> tables, std::size_t capacity) : Interpreter(tables, {std::experimental::make_observer<std::istream>(&std::cin)}, capacity) { }
 
     void
