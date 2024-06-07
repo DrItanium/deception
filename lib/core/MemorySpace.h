@@ -65,10 +65,16 @@ namespace Deception {
         auto crend() const noexcept { return std::reverse_iterator(_backingStorage.get()); }
         auto begin() const noexcept { return _backingStorage.get(); }
         auto begin() noexcept { return _backingStorage.get(); }
+        auto begin(Address start) const noexcept { return _backingStorage.get() + start; }
+        auto begin(Address start) noexcept { return _backingStorage.get() + start; }
         auto cbegin() const noexcept { return _backingStorage.get(); }
         auto end() const noexcept { return _backingStorage.get() + _capacity; }
         auto end() noexcept { return _backingStorage.get() + _capacity; }
+        auto end(Address end) const noexcept { return _backingStorage.get() + end; }
+        auto end(Address end) noexcept { return _backingStorage.get() + end; }
         auto cend() const noexcept { return _backingStorage.get() + _capacity; }
+        constexpr auto empty() const noexcept { return _capacity == 0; }
+        auto data() noexcept { return _backingStorage.get(); }
     private:
         std::size_t _capacity;
         std::unique_ptr<char[]> _backingStorage;
