@@ -29,9 +29,49 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef DECEPTION_MEMORYSPACE_H
 #define DECEPTION_MEMORYSPACE_H
 #include <memory>
+#include <cstdint>
+#include <optional>
+#include <core/Value.h>
+#include <iterator>
 namespace Deception {
+    /**
+     * @brief A block of memory which holds onto characters not bytes.
+     */
     class MemorySpace {
-
+    public:
+        /**
+         * @brief Construct a memory space with a capacity less than four giga characters
+         * @param capacity The number of bytes that make up this memory space; Use the no argument version of the constructor for exactly 4G
+         */
+        explicit MemorySpace(Address capacity);
+        /**
+         * @brief construct a memory space with a capacity of exactly four giga characters
+         */
+        explicit MemorySpace();
+        /**
+         * Get the number of characters stored in this memory pool
+         * @return The number of characters available in this memory pool
+         */
+        [[nodiscard]] constexpr auto size() const noexcept { return _capacity; }
+        [[nodiscard]] char& get(Address index) noexcept { return _backingStorage[index]; }
+        [[nodiscard]] const char& get(Address index) const noexcept { return _backingStorage[index]; }
+        [[nodiscard]] char& operator[](Address index) noexcept { return get(index); }
+        [[nodiscard]] const char& operator[](Address index) const noexcept { return get(index); }
+        auto rbegin() noexcept { return std::reverse_iterator(_backingStorage.get() + _capacity); }
+        auto rbegin() const noexcept { return std::reverse_iterator(_backingStorage.get() + _capacity); }
+        auto crbegin() const noexcept { return std::reverse_iterator(_backingStorage.get() + _capacity); }
+        auto rend() noexcept { return std::reverse_iterator(_backingStorage.get()); }
+        auto rend() const noexcept { return std::reverse_iterator(_backingStorage.get()); }
+        auto crend() const noexcept { return std::reverse_iterator(_backingStorage.get()); }
+        auto begin() const noexcept { return _backingStorage.get(); }
+        auto begin() noexcept { return _backingStorage.get(); }
+        auto cbegin() const noexcept { return _backingStorage.get(); }
+        auto end() const noexcept { return _backingStorage.get() + _capacity; }
+        auto end() noexcept { return _backingStorage.get() + _capacity; }
+        auto cend() const noexcept { return _backingStorage.get() + _capacity; }
+    private:
+        std::size_t _capacity;
+        std::unique_ptr<char[]> _backingStorage;
     };
 }
 
