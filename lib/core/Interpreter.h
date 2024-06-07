@@ -97,6 +97,11 @@ namespace Deception {
             pushElement(tmp);
         }
         constexpr auto memoryCapacity() const noexcept { return _memory.size(); }
+        /**
+         * Return the list of all the opcodes previously executed minus the context of the tables used for execution (although it should not be that much of a problem overall to track!)
+         * @return The sequence of operations executed in a single string (probably don't want to print this one!)
+         */
+        std::string getPreviousExecution() const noexcept { return _previousExecution.str(); }
     private:
         DataStack _dataStack;
         ExecutionStack _executionStack;
@@ -105,6 +110,7 @@ namespace Deception {
         StreamStack _inputStreams;
         std::stringstream _currentOutputStream;
         MemorySpace _memory;
+        std::stringstream _previousExecution;
     private:
         static inline StreamType noStream{ ObservedInputStream (nullptr) };
     };

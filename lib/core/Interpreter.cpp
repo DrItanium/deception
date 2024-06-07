@@ -55,6 +55,8 @@ namespace Deception {
             if (auto current = next(); stopProcessing() || !current) {
                 break;
             } else {
+                // keep track of our execution chain in case we want to display it back
+                _previousExecution.put(*current);
                 (*getCurrentTable())(*current, *this);
             }
         } while (true);
