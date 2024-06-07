@@ -355,6 +355,8 @@ EndGroup(ANPA1312)
 
 StartGroup(TopLevelCodes)
 DeclareAlias(SwitchToTableFromStack, 0xFF)
+DeclareAlias(SkipNextCharacter, 0xFE)
 DeclareAlias(StartMakeString, Ascii::SOS)
 DeclareAlias(EndMakeString, Ascii::ST)
+
 EndGroup(TopLevelCodes)
