@@ -29,7 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "MemorySpace.h"
 
 namespace Deception {
-    MemorySpace::MemorySpace(Address capacity) : _capacity(capacity), _backingStorage(std::make_unique<char[]>(capacity)) { }
-    MemorySpace::MemorySpace() : _capacity(0x100000000), _backingStorage(std::make_unique<char[]>(0x100000000)) {}
+    MemorySpace::MemorySpace(std::size_t capacity) : _capacity(capacity), _backingStorage(std::make_unique<char[]>(capacity)) { }
+    MemorySpace::MemorySpace(Address capacity) : MemorySpace(static_cast<std::size_t>(capacity == 0 ? 0x1'0000'0000 : capacity)) { }
 
 }

@@ -38,16 +38,14 @@ namespace Deception {
      * @brief A block of memory which holds onto characters not bytes.
      */
     class MemorySpace {
+    private:
+        explicit MemorySpace(std::size_t capacity);
     public:
         /**
-         * @brief Construct a memory space with a capacity less than four giga characters
-         * @param capacity The number of bytes that make up this memory space; Use the no argument version of the constructor for exactly 4G
+         * Construct a memory space with four giga characters or less (use 0 to specify the full 4G)
+         * @param capacity The number of characters that make up this space, use 0 to allocate the full 4G
          */
-        explicit MemorySpace(Address capacity);
-        /**
-         * @brief construct a memory space with a capacity of exactly four giga characters
-         */
-        explicit MemorySpace();
+        explicit MemorySpace(Address capacity = 0);
         /**
          * Get the number of characters stored in this memory pool
          * @return The number of characters available in this memory pool
