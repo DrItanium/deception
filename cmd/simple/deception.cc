@@ -38,6 +38,7 @@ int
 main(int argc, char** argv) {
     Deception::Interpreter theInterpreter{
             {
+                    GenericTable { "skip next character", {{}, [](auto&&) {}, [](auto&&) {}, [](auto& interpreter, char) { interpreter.restore(); } }},
                     CustomTable { "single line comment", std::make_shared<Deception::DropCharactersUntil<Deception::Interpreter>>('\n') },
                     CustomTable { "multi line comment", std::make_shared<Deception::DropCharactersUntil<Deception::Interpreter>>(')')},
                     CustomTable { "read string", std::make_shared<StringConstructionTable<Deception::Interpreter>>(Deception::Opcodes::TopLevelCodes::EndMakeString) },
